@@ -1244,138 +1244,142 @@ Notes: ${orderDetails.notes || "None"}`;
         />
       )}
 
-      {/* FLOATING CART BUTTON */}
-{cart.length > 0 && (
-  <button
-    type="button"
-    onClick={() => setShowCart(true)}
-    aria-label="Open your bag"
-    className="fixed bottom-5 right-5 z-[60] flex items-center gap-3 rounded-full border-2 border-[#c77d91] bg-[#fffaf7] px-4 py-3 text-[#a45d72] shadow-lg transition duration-300 hover:-translate-y-1 hover:shadow-xl md:bottom-7 md:right-7 md:px-5 md:py-3.5"
-  >
-    <span className="text-xl">🛍️</span>
+      {showWelcomePopup && (
+        <>
+          {/* FLOATING CART BUTTON */}
+          {cart.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setShowCart(true)}
+              aria-label="Open your bag"
+              className="fixed bottom-5 right-5 z-[60] flex items-center gap-3 rounded-full border-2 border-[#c77d91] bg-[#fffaf7] px-4 py-3 text-[#a45d72] shadow-lg transition duration-300 hover:-translate-y-1 hover:shadow-xl md:bottom-7 md:right-7 md:px-5 md:py-3.5"
+            >
+              <span className="text-xl">🛒</span>
 
-    <span className="text-xs font-black uppercase tracking-[0.12em]">
-      Bag
-    </span>
+              <span className="text-xs font-black uppercase tracking-[0.12em]">
+                Bag
+              </span>
 
-    <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-[#bd7186] px-1.5 text-[10px] font-black text-white">
-      {totalItems}
-    </span>
-  </button>
-)}
-  {showWelcomePopup && (
-  <div className="fixed inset-0 z-[120] flex items-center justify-center bg-[#4b302d]/40 p-5 backdrop-blur-sm">
-    <div className="w-full max-w-md rounded-[2rem] border-4 border-[#f2cbd4] bg-[#fffaf7] p-7 shadow-2xl">
-      <div className="text-center">
-<div className="flex justify-center">
-  <img
-    src="/images/logo.png"
-    alt="Cookie Corner"
-    className="h-16 w-16 object-contain"
-  />
-</div>
-        <p className="mt-3 text-xs font-black uppercase tracking-[0.18em] text-[#bd7186]">
-          welcome to
-        </p>
+              <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-[#bd7186] px-1.5 text-[10px] font-black text-white">
+                {totalItems}
+              </span>
+            </button>
+          )}
 
-        <h2 className="mt-1 font-serif text-4xl font-black text-[#563b35]">
-          Cookie Corner
-        </h2>
+          <div className="fixed inset-0 z-[120] flex items-center justify-center bg-[#4b302d]/40 p-5 backdrop-blur-sm">
+            <div className="w-full max-w-md rounded-[2rem] border-4 border-[#f2cbd4] bg-[#fffaf7] p-7 shadow-2xl">
+              <div className="text-center">
+                <div className="flex justify-center">
+                  <img
+                    src="/images/logo.png"
+                    alt="Cookie Corner"
+                    className="h-16 w-16 object-contain"
+                  />
+                </div>
 
-        <p className="mt-3 text-sm leading-6 text-[#765852]">
-          Save your details for a quicker order next time ♡
-        </p>
-      </div>
+                <p className="mt-3 text-xs font-black uppercase tracking-[0.18em] text-[#bd7186]">
+                  welcome to
+                </p>
 
-      <div className="mt-7 space-y-4">
-        <div>
-          <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
-            Name
-          </label>
+                <h2 className="mt-1 font-serif text-4xl font-black text-[#563b35]">
+                  Cookie Corner
+                </h2>
 
-          <input
-            type="text"
-            value={orderDetails.name}
-            onChange={(e) =>
-              setOrderDetails({
-                ...orderDetails,
-                name: e.target.value,
-              })
-            }
-            placeholder="Your name"
-            autoComplete="name"
-            className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
-          />
-        </div>
+                <p className="mt-3 text-sm leading-6 text-[#765852]">
+                  Save your details for a quicker order next time ♡
+                </p>
+              </div>
 
-        <div>
-          <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
-            Phone
-          </label>
+              <div className="mt-7 space-y-4">
+                <div>
+                  <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
+                    Name
+                  </label>
 
-          <input
-            type="tel"
-            value={orderDetails.phone}
-            onChange={(e) =>
-              setOrderDetails({
-                ...orderDetails,
-                phone: e.target.value,
-              })
-            }
-            placeholder="05XXXXXXXX"
-            autoComplete="tel"
-            className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
-          />
-        </div>
+                  <input
+                    type="text"
+                    value={orderDetails.name}
+                    onChange={(e) =>
+                      setOrderDetails({
+                        ...orderDetails,
+                        name: e.target.value,
+                      })
+                    }
+                    placeholder="Your name"
+                    autoComplete="name"
+                    className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
+                  />
+                </div>
 
-        <div>
-          <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
-            Area / Location
-          </label>
+                <div>
+                  <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
+                    Phone
+                  </label>
 
-          <input
-            type="text"
-            value={orderDetails.location}
-            onChange={(e) =>
-              setOrderDetails({
-                ...orderDetails,
-                location: e.target.value,
-              })
-            }
-            placeholder="Your area / location"
-            autoComplete="street-address"
-            className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
-          />
-        </div>
-      </div>
+                  <input
+                    type="tel"
+                    value={orderDetails.phone}
+                    onChange={(e) =>
+                      setOrderDetails({
+                        ...orderDetails,
+                        phone: e.target.value,
+                      })
+                    }
+                    placeholder="05XXXXXXXX"
+                    autoComplete="tel"
+                    className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
+                  />
+                </div>
 
-      <button
-        type="button"
-        onClick={saveCustomerDetails}
-        disabled={
-          !orderDetails.name.trim() ||
-          !orderDetails.phone.trim() ||
-          !orderDetails.location.trim()
-        }
-        className="mt-6 w-full rounded-full bg-[#bd7186] px-5 py-4 text-sm font-bold uppercase tracking-[0.12em] text-white transition hover:bg-[#a96075] disabled:cursor-not-allowed disabled:opacity-40"
-      >
-        Save my details ♡
-      </button>
+                <div>
+                  <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
+                    Area / Location
+                  </label>
 
-      <button
-        type="button"
-        onClick={() => setShowWelcomePopup(false)}
-        className="mt-3 w-full py-2 text-xs font-bold uppercase tracking-[0.12em] text-[#765852] transition hover:text-[#bd7186]"
-      >
-        Maybe later
-      </button>
+                  <input
+                    type="text"
+                    value={orderDetails.location}
+                    onChange={(e) =>
+                      setOrderDetails({
+                        ...orderDetails,
+                        location: e.target.value,
+                      })
+                    }
+                    placeholder="Your area / location"
+                    autoComplete="street-address"
+                    className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
+                  />
+                </div>
+              </div>
 
-      <p className="mt-3 text-center text-[11px] leading-4 text-[#9a7b75]">
-        Your details stay saved on this device for faster ordering.
-      </p>
-    </div>
-  </div>
-)}
+              <button
+                type="button"
+                onClick={saveCustomerDetails}
+                disabled={
+                  !orderDetails.name.trim() ||
+                  !orderDetails.phone.trim() ||
+                  !orderDetails.location.trim()
+                }
+                className="mt-6 w-full rounded-full bg-[#bd7186] px-5 py-4 text-sm font-bold uppercase tracking-[0.12em] text-white transition hover:bg-[#a96075] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Save my details ♡
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowWelcomePopup(false)}
+                className="mt-3 w-full py-2 text-xs font-bold uppercase tracking-[0.12em] text-[#765852] transition hover:text-[#bd7186]"
+              >
+                Maybe later
+              </button>
+
+              <p className="mt-3 text-center text-[11px] leading-4 text-[#9a7b75]">
+                Your details stay saved on this device for faster ordering.
+              </p>
+            </div>
+          </div>
+        </>
+      )}
     </main>
   );
 }
