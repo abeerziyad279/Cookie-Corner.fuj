@@ -128,16 +128,14 @@ window.location.href = `https://wa.me/971507576175?text=${encodeURIComponent(mes
     <main className="min-h-screen overflow-hidden bg-[#fffaf7] text-[#332321] selection:bg-[#f5b8c9] selection:text-[#332321]">
       <div className="pointer-events-none fixed inset-0 z-50 opacity-[0.035] mix-blend-multiply" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 160 160%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%22.9%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22 opacity=%22.35%22/%3E%3C/svg%3E')" }} />
 
-      <nav className="sticky top-0 z-40 border-b border-[#dec3c2] bg-[#fffaf7]/90 px-5 py-4 backdrop-blur-sm md:px-12">
-        <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-4">
-          <a href="#home" className="group flex items-center gap-3">
-           <img
+      <nav className="sticky top-0 z-40 border-b border-[#dec3c2] bg-[#fffaf7]/90 px-4 py-3 backdrop-blur-sm md:px-12 md:py-4">
+  <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
+<a href="#home" className="group flex min-w-0 items-center gap-2">           <img
   src="/images/logo.png"
   alt="Cookie Corner"
-  className="h-14 w-14 object-contain transition group-hover:scale-105"
-/>
-            <span className="font-serif text-2xl font-bold tracking-[-0.06em]">cookie corner</span>
-          </a>
+className="shrink-0 rounded-full border-2 border-[#c77d91] bg-white px-3 py-2 text-[11px] font-bold uppercase tracking-[0.08em] text-[#a95d73] shadow-none transition hover:-translate-y-0.5 md:px-4 md:text-xs md:tracking-[0.12em]"<span className="truncate font-serif text-xl font-bold tracking-[-0.06em] md:text-2xl">
+  cookie corner
+</span>          </a>
           <div className="hidden items-center justify-center gap-8 text-[11px] font-bold uppercase tracking-[0.18em] md:flex">
             <a href="#menu" className="transition hover:text-[#d65f83]">Menu</a>
             <a href="#boxes" className="transition hover:text-[#d65f83]">Boxes</a>
