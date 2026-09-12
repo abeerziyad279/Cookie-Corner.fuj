@@ -191,7 +191,7 @@ const boxOptions = [
   {
     size: 20,
     group: 9,
-    label: "20 Cinnamon Roll Box",
+    label: "20",
     price: 145,
     description: "Cinnamon Roll cookies",
   },
