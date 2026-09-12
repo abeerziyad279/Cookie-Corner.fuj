@@ -1426,10 +1426,9 @@ function BoxGroup({
                 AED {box.price}
               </span>
             </div>
-            <p className="mt-3 text-xs font-bold uppercase tracking-[0.1em] text-[#bd7186]">
-              {box.size} cookies
-            </p>
-
+         <p className="mt-4 text-lg font-black uppercase tracking-[0.06em] leading-none text-[#bd7186]">
+  {box.size} cookies
+</p>
             <p className="mt-5 text-xs font-bold uppercase tracking-[0.1em] underline underline-offset-4">
               Choose flavors →
             </p>
