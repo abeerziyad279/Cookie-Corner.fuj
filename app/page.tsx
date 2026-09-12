@@ -47,7 +47,7 @@ const cookies: Cookie[] = [
     image: "/images/red-velvet.jpg",
   },
   {
-    name: "Double Chocolate",
+    name: "Double Chocolate Cookie",
     description:
       "Deep chocolate flavor with a soft, fudgy middle.",
     price: 7,
