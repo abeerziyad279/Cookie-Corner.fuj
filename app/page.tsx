@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
 type Cookie = {
   name: string;
   description: string;
@@ -213,6 +212,28 @@ export default function Home() {
     location: "",
     notes: "",
   });
+  const [showWelcomePopup, setShowWelcomePopup] = useState(false);
+
+  useEffect(() => {
+  const savedCustomer = localStorage.getItem("cookieCornerCustomer");
+
+  if (savedCustomer) {
+    try {
+      const customer = JSON.parse(savedCustomer);
+
+      setOrderDetails((current) => ({
+        ...current,
+        name: customer.name || "",
+        phone: customer.phone || "",
+        location: customer.location || "",
+      }));
+    } catch {
+      localStorage.removeItem("cookieCornerCustomer");
+    }
+  } else {
+    setShowWelcomePopup(true);
+  }
+}, []);
 
   const showToast = (message: string) => {
     setToast(message);
@@ -413,7 +434,26 @@ export default function Home() {
       };
     }
   );
+const saveCustomerDetails = () => {
+  if (
+    !orderDetails.name.trim() ||
+    !orderDetails.phone.trim() ||
+    !orderDetails.location.trim()
+  ) {
+    return;
+  }
 
+  localStorage.setItem(
+    "cookieCornerCustomer",
+    JSON.stringify({
+      name: orderDetails.name.trim(),
+      phone: orderDetails.phone.trim(),
+      location: orderDetails.location.trim(),
+    })
+  );
+
+  setShowWelcomePopup(false);
+};
   const placeOrder = () => {
     if (
       !orderDetails.name.trim() ||
@@ -425,7 +465,14 @@ export default function Home() {
     ) {
       return;
     }
-
+localStorage.setItem(
+  "cookieCornerCustomer",
+  JSON.stringify({
+    name: orderDetails.name.trim(),
+    phone: orderDetails.phone.trim(),
+    location: orderDetails.location.trim(),
+  })
+);
     const orderLines = cart
       .map(
         (item) =>
@@ -1076,7 +1123,114 @@ Notes: ${orderDetails.notes || "None"}`;
           placeOrder={placeOrder}
           close={() => setShowCart(false)}
         />
-      )}
+      )}{showWelcomePopup && (
+  <div className="fixed inset-0 z-[120] flex items-center justify-center bg-[#4b302d]/40 p-5 backdrop-blur-sm">
+    <div className="w-full max-w-md rounded-[2rem] border-4 border-[#f2cbd4] bg-[#fffaf7] p-7 shadow-2xl">
+      <div className="text-center">
+        <div className="text-4xl">🍪</div>
+
+        <p className="mt-3 text-xs font-black uppercase tracking-[0.18em] text-[#bd7186]">
+          welcome to
+        </p>
+
+        <h2 className="mt-1 font-serif text-4xl font-black text-[#563b35]">
+          Cookie Corner
+        </h2>
+
+        <p className="mt-3 text-sm leading-6 text-[#765852]">
+          Save your details for a quicker order next time ♡
+        </p>
+      </div>
+
+      <div className="mt-7 space-y-4">
+        <div>
+          <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
+            Name
+          </label>
+
+          <input
+            type="text"
+            value={orderDetails.name}
+            onChange={(e) =>
+              setOrderDetails({
+                ...orderDetails,
+                name: e.target.value,
+              })
+            }
+            placeholder="Your name"
+            autoComplete="name"
+            className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
+          />
+        </div>
+
+        <div>
+          <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
+            Phone
+          </label>
+
+          <input
+            type="tel"
+            value={orderDetails.phone}
+            onChange={(e) =>
+              setOrderDetails({
+                ...orderDetails,
+                phone: e.target.value,
+              })
+            }
+            placeholder="05XXXXXXXX"
+            autoComplete="tel"
+            className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
+          />
+        </div>
+
+        <div>
+          <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
+            Area / Location
+          </label>
+
+          <input
+            type="text"
+            value={orderDetails.location}
+            onChange={(e) =>
+              setOrderDetails({
+                ...orderDetails,
+                location: e.target.value,
+              })
+            }
+            placeholder="Your area / location"
+            autoComplete="street-address"
+            className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
+          />
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onClick={saveCustomerDetails}
+        disabled={
+          !orderDetails.name.trim() ||
+          !orderDetails.phone.trim() ||
+          !orderDetails.location.trim()
+        }
+        className="mt-6 w-full rounded-full bg-[#bd7186] px-5 py-4 text-sm font-bold uppercase tracking-[0.12em] text-white transition hover:bg-[#a96075] disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        Save my details ♡
+      </button>
+
+      <button
+        type="button"
+        onClick={() => setShowWelcomePopup(false)}
+        className="mt-3 w-full py-2 text-xs font-bold uppercase tracking-[0.12em] text-[#765852] transition hover:text-[#bd7186]"
+      >
+        Maybe later
+      </button>
+
+      <p className="mt-3 text-center text-[11px] leading-4 text-[#9a7b75]">
+        Your details stay saved on this device for faster ordering.
+      </p>
+    </div>
+  </div>
+)}
     </main>
   );
 }
