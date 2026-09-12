@@ -120,8 +120,7 @@ export default function Home() {
     if (!orderDetails.name || !orderDetails.phone || !orderDetails.date || (orderDetails.method === "Delivery" && !orderDetails.location) || totalItems < 4) return;
     const orderLines = cart.map((item) => `- ${item.name} x${item.quantity} — AED ${item.price * item.quantity}${item.details ? ` (${item.details})` : ""}`).join("\n");
     const message = `Hi Cookie Corner! I'd like to place an order.\n\nName: ${orderDetails.name}\nPhone: ${orderDetails.phone}\n${orderDetails.method}: ${orderDetails.date}${orderDetails.method === "Delivery" ? `\nArea: ${orderDetails.area}\nLocation: ${orderDetails.location}` : ""}\n\nOrder:\n${orderLines}\n\nSubtotal: AED ${cartSubtotal}\nDelivery fee: AED ${deliveryFee}\nTotal: AED ${cartTotal}\nNotes: ${orderDetails.notes || "None"}`;
-    window.open(`https://wa.me/971507576175?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
-    setShowCart(false);
+window.location.href = `https://wa.me/971507576175?text=${encodeURIComponent(message)}`;    setShowCart(false);
     setOrderSent(true);
   };
 
@@ -240,12 +239,336 @@ function Quote({ text, name }: { text: string; name: string }) { return <div cla
 function BoxModal({ selectedBox, boxQuantities, boxTotal, updateBoxQuantity, addBoxToCart, close }: { selectedBox: (typeof boxOptions)[number]; boxQuantities: Record<string, number>; boxTotal: number; updateBoxQuantity: (name: string, change: number) => void; addBoxToCart: () => void; close: () => void }) {
   return <div className="fixed inset-0 z-[70] flex items-center justify-center bg-[#4b302d]/40 p-4 backdrop-blur-sm"><div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-[2rem] border-4 border-[#f2cbd4] bg-[#fffaf7] p-5 shadow-2xl md:p-8"><div className="flex justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-[0.18em] text-[#d9567c]">build your box</p><h2 className="mt-2 font-serif text-4xl font-black">{selectedBox.label}</h2><p className="mt-1 text-sm text-[#765852]">Choose exactly {selectedBox.size} cookies.</p></div><button onClick={close} className="h-9 w-9 border-2 border-[#332321] text-xl font-black">×</button></div><div className="mt-7 space-y-3">{cookies.filter((cookie) => selectedBox.group === 9 ? cookie.name === "Cinnamon Roll Cookie" : cookie.price === selectedBox.group).map((cookie) => <div key={cookie.name} className="flex items-center justify-between border-2 border-[#dec3c2] bg-white p-3"><div><p className="font-serif text-xl font-bold">{cookie.name}</p><p className="text-xs text-[#765852]">AED {cookie.price} individually</p></div><div className="flex items-center gap-3"><button onClick={() => updateBoxQuantity(cookie.name, -1)} className="h-8 w-8 rounded-full bg-[#f8dce3] font-bold text-[#8e5265]">−</button><span className="w-4 text-center font-black">{boxQuantities[cookie.name] || 0}</span><button onClick={() => updateBoxQuantity(cookie.name, 1)} className="h-8 w-8 rounded-full bg-[#f8dce3] font-bold text-[#8e5265]">+</button></div></div>)}</div><div className="mt-6 flex items-center justify-between border-2 border-[#332321] bg-[#f7e8e4] p-4"><span className="font-black uppercase tracking-[0.12em]">{boxTotal} / {selectedBox.size} selected</span><span className="font-serif text-2xl font-black">AED {selectedBox.price}</span></div><button onClick={addBoxToCart} disabled={boxTotal !== selectedBox.size} className="mx-auto mt-4 block rounded-full bg-[#bd7186] px-5 py-4 text-sm font-bold uppercase tracking-[0.12em] text-white disabled:cursor-not-allowed disabled:opacity-40">{boxTotal === selectedBox.size ? `Add box · AED ${selectedBox.price}` : `Choose ${selectedBox.size - boxTotal} more`}</button></div></div>;
 }
+function CartDrawer({
+  cart,
+  cartTotal,
+  cartSubtotal,
+  deliveryFee,
+  orderDates,
+  totalItems,
+  changeQuantity,
+  orderDetails,
+  setOrderDetails,
+  placeOrder,
+  close,
+}: {
+  cart: CartItem[];
+  cartTotal: number;
+  cartSubtotal: number;
+  deliveryFee: number;
+  orderDates: { value: string; label: string }[];
+  totalItems: number;
+  changeQuantity: (id: string, change: number) => void;
+  orderDetails: {
+    name: string;
+    phone: string;
+    method: string;
+    area: string;
+    date: string;
+    location: string;
+    notes: string;
+  };
+  setOrderDetails: (details: {
+    name: string;
+    phone: string;
+    method: string;
+    area: string;
+    date: string;
+    location: string;
+    notes: string;
+  }) => void;
+  placeOrder: () => void;
+  close: () => void;
+}) {
+  const updateDetails = (field: string, value: string) => {
+    setOrderDetails({
+      ...orderDetails,
+      [field]: value,
+    });
+  };
 
-function CartDrawer({ cart, cartTotal, cartSubtotal, deliveryFee, orderDates, totalItems, changeQuantity, orderDetails, setOrderDetails, placeOrder, close }: { cart: CartItem[]; cartTotal: number; cartSubtotal: number; deliveryFee: number; orderDates: { value: string; label: string }[]; totalItems: number; changeQuantity: (id: string, change: number) => void; orderDetails: { name: string; phone: string; method: string; area: string; date: string; location: string; notes: string }; setOrderDetails: (details: { name: string; phone: string; method: string; area: string; date: string; location: string; notes: string }) => void; placeOrder: () => void; close: () => void }) {
-<button
-  type="button"
-  onClick={placeOrder}
-  className="mt-6 w-full rounded-full bg-[#bd7186] px-5 py-4 text-sm font-bold uppercase tracking-[0.12em] text-white transition hover:bg-[#a96075]"
->
-  Send order on WhatsApp
-</button>}
+  const readyToOrder =
+    totalItems >= 4 &&
+    orderDetails.name.trim() !== "" &&
+    orderDetails.phone.trim() !== "" &&
+    orderDetails.date !== "" &&
+    (orderDetails.method !== "Delivery" ||
+      orderDetails.location.trim() !== "");
+
+  return (
+    <div className="fixed inset-0 z-[80] flex justify-end bg-[#4b302d]/30 backdrop-blur-sm">
+      <div className="h-full w-full max-w-xl overflow-y-auto bg-[#fffaf7] shadow-2xl">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#efd7dc] bg-[#fffaf7]/95 px-5 py-5 backdrop-blur-sm">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#bd7186]">
+              your bag
+            </p>
+            <h2 className="mt-1 font-serif text-3xl font-black">
+              {totalItems} {totalItems === 1 ? "cookie" : "cookies"}
+            </h2>
+          </div>
+
+          <button
+            type="button"
+            onClick={close}
+            className="h-10 w-10 rounded-full border-2 border-[#332321] text-xl font-black"
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="p-5 md:p-7">
+          {cart.length === 0 ? (
+            <div className="py-16 text-center">
+              <p className="text-5xl">🍪</p>
+              <h3 className="mt-5 font-serif text-3xl font-black">
+                Your bag is empty
+              </h3>
+              <p className="mt-3 text-sm text-[#765852]">
+                Add some cookies and they’ll show up here.
+              </p>
+
+              <button
+                type="button"
+                onClick={close}
+                className="mt-7 rounded-full bg-[#bd7186] px-6 py-3 text-sm font-bold uppercase tracking-[0.12em] text-white"
+              >
+                Back to menu
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="space-y-4">
+                {cart.map((item) => (
+                  <div
+                    key={item.id}
+                    className="border-2 border-[#efd7dc] bg-white p-4"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <h3 className="font-serif text-xl font-black">
+                          {item.name}
+                        </h3>
+
+                        {item.details && (
+                          <p className="mt-1 text-xs leading-5 text-[#765852]">
+                            {item.details}
+                          </p>
+                        )}
+
+                        <p className="mt-2 text-sm font-bold text-[#bd7186]">
+                          AED {item.price}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => changeQuantity(item.id, -1)}
+                          className="h-8 w-8 rounded-full bg-[#f8dce3] font-bold text-[#8e5265]"
+                        >
+                          −
+                        </button>
+
+                        <span className="w-6 text-center font-black">
+                          {item.quantity}
+                        </span>
+
+                        <button
+                          type="button"
+                          onClick={() => changeQuantity(item.id, 1)}
+                          className="h-8 w-8 rounded-full bg-[#f8dce3] font-bold text-[#8e5265]"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 border-t border-[#efd7dc] pt-3 text-right text-sm font-black">
+                      AED {item.price * item.quantity}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {totalItems < 4 && (
+                <div className="mt-5 rounded-2xl bg-[#fff0f3] p-4 text-sm font-bold text-[#a45d72]">
+                  Minimum order is 4 cookies. Add {4 - totalItems} more to
+                  continue.
+                </div>
+              )}
+
+              <div className="mt-8 border-y-2 border-[#332321] py-5">
+                <h3 className="font-serif text-2xl font-black">
+                  Order details
+                </h3>
+
+                <div className="mt-5 space-y-4">
+                  <div>
+                    <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
+                      Name
+                    </label>
+                    <input
+                      type="text"
+                      value={orderDetails.name}
+                      onChange={(e) =>
+                        updateDetails("name", e.target.value)
+                      }
+                      placeholder="Your name"
+                      className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
+                      Phone
+                    </label>
+                    <input
+                      type="tel"
+                      value={orderDetails.phone}
+                      onChange={(e) =>
+                        updateDetails("phone", e.target.value)
+                      }
+                      placeholder="05XXXXXXXX"
+                      className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
+                      Order type
+                    </label>
+
+                    <select
+                      value={orderDetails.method}
+                      onChange={(e) =>
+                        updateDetails("method", e.target.value)
+                      }
+                      className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
+                    >
+                      <option value="Pickup">Pickup</option>
+                      <option value="Delivery">Delivery</option>
+                    </select>
+                  </div>
+
+                  {orderDetails.method === "Delivery" && (
+                    <>
+                      <div>
+                        <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
+                          Area
+                        </label>
+
+                        <select
+                          value={orderDetails.area}
+                          onChange={(e) =>
+                            updateDetails("area", e.target.value)
+                          }
+                          className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
+                        >
+                          <option value="Within Fujairah">
+                            Within Fujairah — AED 10
+                          </option>
+                          <option value="Outside Fujairah">
+                            Outside Fujairah — AED 25
+                          </option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
+                          Location
+                        </label>
+
+                        <input
+                          type="text"
+                          value={orderDetails.location}
+                          onChange={(e) =>
+                            updateDetails("location", e.target.value)
+                          }
+                          placeholder="Area / location"
+                          className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  <div>
+                    <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
+                      Order date
+                    </label>
+
+                    <select
+                      value={orderDetails.date}
+                      onChange={(e) =>
+                        updateDetails("date", e.target.value)
+                      }
+                      className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
+                    >
+                      <option value="">Select a date</option>
+
+                      {orderDates.map((date) => (
+                        <option key={date.value} value={date.value}>
+                          {date.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
+                      Notes
+                    </label>
+
+                    <textarea
+                      value={orderDetails.notes}
+                      onChange={(e) =>
+                        updateDetails("notes", e.target.value)
+                      }
+                      placeholder="Any special requests?"
+                      rows={3}
+                      className="w-full resize-none rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 space-y-3 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-[#765852]">Subtotal</span>
+                  <span className="font-bold">AED {cartSubtotal}</span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-[#765852]">Delivery fee</span>
+                  <span className="font-bold">
+                    AED {deliveryFee}
+                  </span>
+                </div>
+
+                <div className="flex justify-between border-t-2 border-[#332321] pt-4 text-lg">
+                  <span className="font-serif font-black">Total</span>
+                  <span className="font-black">AED {cartTotal}</span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={placeOrder}
+                disabled={!readyToOrder}
+                className="mt-6 w-full rounded-full bg-[#bd7186] px-5 py-4 text-sm font-bold uppercase tracking-[0.12em] text-white transition hover:bg-[#a96075] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Send order on WhatsApp
+              </button>
+
+              {!readyToOrder && totalItems >= 4 && (
+                <p className="mt-3 text-center text-xs font-bold text-[#a45d72]">
+                  Please complete your order details above.
+                </p>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
