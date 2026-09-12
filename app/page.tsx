@@ -992,7 +992,7 @@ Notes: ${orderDetails.notes || "None"}`;
         Cookie Corner moments ♡
       </p>
       <p className="mt-2 text-sm text-[#8f7378]">
-        little moments from our cookie corner
+        take a pic, tag us & you might see it here.
       </p>
     </div>
 
