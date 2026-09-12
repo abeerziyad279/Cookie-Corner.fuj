@@ -1414,12 +1414,12 @@ function BoxGroup({
             <div className="flex items-start justify-between gap-2">
               <span className="font-serif text-xl font-bold leading-none">
                 {box.group === 9
-                  ? "Cinnamon Roll Box"
+                  ? ""
                   : box.group === 8
-                  ? "Kinder Box"
+                  ? ""
                   : box.group === 7
-                  ? "Chocolate Box"
-                  : "Cookie Box"}
+                  ? ""
+                  : ""}
               </span>
 
               <span className="text-sm font-black">
