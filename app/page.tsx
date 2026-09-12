@@ -781,7 +781,7 @@ Notes: ${orderDetails.notes || "None"}`;
             </p>
 
             <h2 className="mt-2 font-serif text-5xl font-black tracking-[-0.06em] text-[#563b35] md:text-6xl">
-              NEW!.
+              NEW!
             </h2>
           </div>
 
