@@ -201,22 +201,26 @@ export default function Home() {
 
   const [boxQuantities, setBoxQuantities] = useState<
     Record<string, number>
-  >({});
+  >({});const [orderDetails, setOrderDetails] = useState({
+  name: "",
+  phone: "",
+  method: "Pickup",
+  area: "Within Fujairah",
+  date: "",
+  location: "",
+  notes: "",
+});
 
-  const [orderDetails, setOrderDetails] = useState({
-    name: "",
-    phone: "",
-    method: "Pickup",
-    area: "Within Fujairah",
-    date: "",
-    location: "",
-    notes: "",
-  });
-  const [showWelcomePopup, setShowWelcomePopup] = useState(false);
+const [showWelcomePopup, setShowWelcomePopup] = useState(false);
+const [showCookieConsent, setShowCookieConsent] = useState(false);
+ useEffect(() => {
+  const cookieConsent = localStorage.getItem("cookieCornerConsent");
 
-  useEffect(() => {
+  if (!cookieConsent) {
+    setShowCookieConsent(true);
+  }
+
   const savedCustomer = localStorage.getItem("cookieCornerCustomer");
-
   if (savedCustomer) {
     try {
       const customer = JSON.parse(savedCustomer);
