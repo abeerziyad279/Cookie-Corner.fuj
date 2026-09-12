@@ -1127,8 +1127,13 @@ Notes: ${orderDetails.notes || "None"}`;
   <div className="fixed inset-0 z-[120] flex items-center justify-center bg-[#4b302d]/40 p-5 backdrop-blur-sm">
     <div className="w-full max-w-md rounded-[2rem] border-4 border-[#f2cbd4] bg-[#fffaf7] p-7 shadow-2xl">
       <div className="text-center">
-        <div className="text-4xl">🍪</div>
-
+<div className="flex justify-center">
+  <img
+    src="/images/logo.png"
+    alt="Cookie Corner"
+    className="h-16 w-16 object-contain"
+  />
+</div>
         <p className="mt-3 text-xs font-black uppercase tracking-[0.18em] text-[#bd7186]">
           welcome to
         </p>
