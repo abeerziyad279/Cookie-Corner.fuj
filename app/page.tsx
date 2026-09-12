@@ -1087,14 +1087,8 @@ Notes: ${orderDetails.notes || "None"}`;
         className="h-64 w-full rounded-2xl object-cover"
       />
 
-     <img
-        src="/images/customer-pic-16.jpeg"
-        alt="Cookie Corner"
-        className="h-64 w-full rounded-2xl object-cover"
-      />
-
        <img
-        src="/images/customer-pic-17.jpeg"
+        src="/images/customer-pic-16.jpeg"
         alt="Cookie Corner"
         className="h-64 w-full rounded-2xl object-cover"
       />
