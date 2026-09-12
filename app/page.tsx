@@ -954,58 +954,125 @@ Notes: ${orderDetails.notes || "None"}`;
           </div>
         </div>
       </section>
+{/* REVIEWS */}
 
-      {/* REVIEWS */}
-      <section className="border-y border-[#efd7dc] bg-[#fff5f6] px-5 py-16 md:px-12">
-        <div className="mx-auto max-w-4xl text-center">
-          <p className="font-serif text-2xl italic text-[#d9567c]">
-            things people say
-          </p>
+<section className="border-y border-[#efd7dc] bg-[#fff5f6] px-5 py-16 md:px-12">
+  <div className="mx-auto max-w-4xl text-center">
 
-          <div className="mt-8 grid gap-5 md:grid-cols-3">
-            <Quote
-              text="The cookies disappeared before the party even started."
-              name="Shahad"
-            />
+    <p className="font-serif text-2xl italic text-[#d9567c]">
+      things people say
+    </p>
 
-            <Quote
-              text="Soft in the middle, crispy at the edges. Perfect."
-              name="Razan"
-            />
+    <div className="mt-8 grid gap-5 md:grid-cols-3">
+      <Quote
+        text="The cookies disappeared before the party even started."
+        name="Shahad"
+      />
+      <Quote
+        text="Soft in the middle, crispy at the edges. Perfect."
+        name="Razan"
+      />
+      <Quote
+        text="The cutest box and the most delicious brownies."
+        name="Baraa"
+      />
+    </div>
 
-            <Quote
-              text="The cutest box and the most delicious brownies."
-              name="Baraa"
-            />
-          </div>
-        </div>
-      </section>
-      {/* REVIEWS */}
-      <section className="border-y border-[#efd7dc] bg-[#fff5f6] px-5 py-16 md:px-12">
-        <div className="mx-auto max-w-4xl text-center">
-          <p className="font-serif text-2xl italic text-[#d9567c]">
-            things people say
-          </p>
+  </div>
+</section>
 
-          <div className="mt-8 grid gap-5 md:grid-cols-3">
-            <Quote
-              text="The cookies disappeared before the party even started."
-              name="Shahad"
-            />
 
-            <Quote
-              text="Soft in the middle, crispy at the edges. Perfect."
-              name="Razan"
-            />
+{/* COOKIE CORNER PICTURES */}
 
-            <Quote
-              text="The cutest box and the most delicious brownies."
-              name="Baraa"
-            />
-          </div>
-        </div>
-      </section>
+<section className="bg-white px-5 py-16 md:px-12">
+  <div className="mx-auto max-w-6xl">
 
+    <div className="mb-10 text-center">
+      <p className="font-serif text-2xl italic text-[#d9567c]">
+        Cookie Corner moments ♡
+      </p>
+      <p className="mt-2 text-sm text-[#8f7378]">
+        little moments from our cookie corner
+      </p>
+    </div>
+
+    <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+      
+      <img
+        src="/images/customer-pic1.jpg"
+        alt="Cookie Corner"
+        className="h-64 w-full rounded-2xl object-cover"
+      />
+
+      <img
+        src="/images/customer-pic2.jpg"
+        alt="Cookie Corner"
+        className="h-64 w-full rounded-2xl object-cover"
+      />
+
+      <img
+        src="/images/customer-pic3.jpg"
+        alt="Cookie Corner"
+        className="h-64 w-full rounded-2xl object-cover"
+      />
+
+      <img
+        src="/images/customer-pic4.jpg"
+        alt="Cookie Corner"
+        className="h-64 w-full rounded-2xl object-cover"
+      />
+
+      <img
+        src="/images/customer-pic5.jpg"
+        alt="Cookie Corner"
+        className="h-64 w-full rounded-2xl object-cover"
+      />
+
+      <img
+        src="/images/customer-pic6.jpg"
+        alt="Cookie Corner"
+        className="h-64 w-full rounded-2xl object-cover"
+      />
+
+      <img
+        src="/images/customer-pic7.jpg"
+        alt="Cookie Corner"
+        className="h-64 w-full rounded-2xl object-cover"
+      />
+
+      <img
+        src="/images/customer-pic8.jpg"
+        alt="Cookie Corner"
+        className="h-64 w-full rounded-2xl object-cover"
+      />
+
+      <img
+        src="/images/customer-pic9.jpg"
+        alt="Cookie Corner"
+        className="h-64 w-full rounded-2xl object-cover"
+      />
+
+      <img
+        src="/images/customer-pic10.jpg"
+        alt="Cookie Corner"
+        className="h-64 w-full rounded-2xl object-cover"
+      />
+
+      <img
+        src="/images/customer-pic11.jpg"
+        alt="Cookie Corner"
+        className="h-64 w-full rounded-2xl object-cover"
+      />
+
+      <img
+        src="/images/customer-pic12.jpg"
+        alt="Cookie Corner"
+        className="h-64 w-full rounded-2xl object-cover"
+      />
+
+    </div>
+  </div>
+</section>
 
       {/* CONTACT */}
       <section
