@@ -89,9 +89,16 @@ export default function Home() {
   const updateBoxQuantity = (cookieName: string, change: number) => {
     if (!selectedBox) return;
     setBoxQuantities((current) => {
-      const total = Object.values(current).reduce((sum, value) => sum + value, 0);
+      const totalItems = cart.reduce((total, item) => {
+        if (item.id.startsWith("box-")) {
+          const boxSize = Number(item.name.match(/\d+/)?.[0] || 0);
+          return total + boxSize * item.quantity;
+        }
+
+        return total + item.quantity;
+      }, 0);
       const value = current[cookieName] || 0;
-      if (change > 0 && total >= selectedBox.size) return current;
+      if (change > 0 && totalItems >= selectedBox.size) return current;
       if (change < 0 && value <= 0) return current;
       return { ...current, [cookieName]: value + change };
     });
