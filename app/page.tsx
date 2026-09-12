@@ -980,6 +980,32 @@ Notes: ${orderDetails.notes || "None"}`;
           </div>
         </div>
       </section>
+      {/* REVIEWS */}
+      <section className="border-y border-[#efd7dc] bg-[#fff5f6] px-5 py-16 md:px-12">
+        <div className="mx-auto max-w-4xl text-center">
+          <p className="font-serif text-2xl italic text-[#d9567c]">
+            things people say
+          </p>
+
+          <div className="mt-8 grid gap-5 md:grid-cols-3">
+            <Quote
+              text="The cookies disappeared before the party even started."
+              name="Shahad"
+            />
+
+            <Quote
+              text="Soft in the middle, crispy at the edges. Perfect."
+              name="Razan"
+            />
+
+            <Quote
+              text="The cutest box and the most delicious brownies."
+              name="Baraa"
+            />
+          </div>
+        </div>
+      </section>
+
 
       {/* CONTACT */}
       <section
