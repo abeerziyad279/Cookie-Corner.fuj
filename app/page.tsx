@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
 type Cookie = {
   name: string;
   description: string;
@@ -15,6 +16,16 @@ type CartItem = {
   quantity: number;
   details?: string;
   itemCount?: number;
+};
+
+type OrderDetails = {
+  name: string;
+  phone: string;
+  method: string;
+  area: string;
+  date: string;
+  location: string;
+  notes: string;
 };
 
 const cookies: Cookie[] = [
@@ -97,6 +108,7 @@ const boxOptions = [
     price: 115,
     description: "Classic, M&M's & Birthday Cake",
   },
+
   {
     size: 4,
     group: 7,
@@ -125,6 +137,7 @@ const boxOptions = [
     price: 130,
     description: "Red Velvet & Double Chocolate",
   },
+
   {
     size: 4,
     group: 8,
@@ -153,6 +166,7 @@ const boxOptions = [
     price: 145,
     description: "Kinder cookies",
   },
+
   {
     size: 4,
     group: 9,
@@ -189,6 +203,23 @@ const gridStyle = {
   backgroundSize: "26px 26px",
 };
 
+const getOrderDates = () => {
+  return Array.from({ length: 30 }, (_, index) => {
+    const date = new Date(
+      Date.now() + (index + 1) * 24 * 60 * 60 * 1000
+    );
+
+    return {
+      value: date.toISOString().split("T")[0],
+      label: date.toLocaleDateString("en-GB", {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+      }),
+    };
+  });
+};
+
 export default function Home() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);
@@ -201,47 +232,55 @@ export default function Home() {
 
   const [boxQuantities, setBoxQuantities] = useState<
     Record<string, number>
-  >({});const [orderDetails, setOrderDetails] = useState({
-  name: "",
-  phone: "",
-  method: "Pickup",
-  area: "Within Fujairah",
-  date: "",
-  location: "",
-  notes: "",
-});
+  >({});
 
-const [showWelcomePopup, setShowWelcomePopup] = useState(false);
-const [showCookieConsent, setShowCookieConsent] = useState(false);
- useEffect(() => {
-  const cookieConsent = localStorage.getItem("cookieCornerConsent");
+  const [orderDates, setOrderDates] = useState<
+    { value: string; label: string }[]
+  >([]);
 
-  if (!cookieConsent) {
-    setShowCookieConsent(true);
-  }
+  const [orderDetails, setOrderDetails] = useState<OrderDetails>({
+    name: "",
+    phone: "",
+    method: "Pickup",
+    area: "Within Fujairah",
+    date: "",
+    location: "",
+    notes: "",
+  });
 
-  const savedCustomer = localStorage.getItem("cookieCornerCustomer");
-  if (savedCustomer) {
-    try {
-      const customer = JSON.parse(savedCustomer);
+  const [showWelcomePopup, setShowWelcomePopup] = useState(false);
 
-      setOrderDetails((current) => ({
-        ...current,
-        name: customer.name || "",
-        phone: customer.phone || "",
-        location: customer.location || "",
-      }));
-    } catch {
-      localStorage.removeItem("cookieCornerCustomer");
+  useEffect(() => {
+    setOrderDates(getOrderDates());
+
+    const savedCustomer = localStorage.getItem(
+      "cookieCornerCustomer"
+    );
+
+    if (savedCustomer) {
+      try {
+        const customer = JSON.parse(savedCustomer);
+
+        setOrderDetails((current) => ({
+          ...current,
+          name: customer.name || "",
+          phone: customer.phone || "",
+          location: customer.location || "",
+        }));
+      } catch {
+        localStorage.removeItem("cookieCornerCustomer");
+      }
+    } else {
+      setShowWelcomePopup(true);
     }
-  } else {
-    setShowWelcomePopup(true);
-  }
-}, []);
+  }, []);
 
   const showToast = (message: string) => {
     setToast(message);
-    window.setTimeout(() => setToast(""), 2200);
+
+    window.setTimeout(() => {
+      setToast("");
+    }, 2200);
   };
 
   const addToCart = (cookie: Cookie) => {
@@ -252,7 +291,10 @@ const [showCookieConsent, setShowCookieConsent] = useState(false);
       if (existing) {
         return current.map((item) =>
           item.id === id
-            ? { ...item, quantity: item.quantity + 1 }
+            ? {
+                ...item,
+                quantity: item.quantity + 1,
+              }
             : item
         );
       }
@@ -284,7 +326,10 @@ const [showCookieConsent, setShowCookieConsent] = useState(false);
       if (existing) {
         return current.map((item) =>
           item.id === id
-            ? { ...item, quantity: item.quantity + 1 }
+            ? {
+                ...item,
+                quantity: item.quantity + 1,
+              }
             : item
         );
       }
@@ -309,7 +354,10 @@ const [showCookieConsent, setShowCookieConsent] = useState(false);
       current
         .map((item) =>
           item.id === id
-            ? { ...item, quantity: item.quantity + change }
+            ? {
+                ...item,
+                quantity: item.quantity + change,
+              }
             : item
         )
         .filter((item) => item.quantity > 0)
@@ -371,7 +419,9 @@ const [showCookieConsent, setShowCookieConsent] = useState(false);
   );
 
   const addBoxToCart = () => {
-    if (!selectedBox || boxTotal !== selectedBox.size) return;
+    if (!selectedBox || boxTotal !== selectedBox.size) {
+      return;
+    }
 
     const details = Object.entries(boxQuantities)
       .filter(([, quantity]) => quantity > 0)
@@ -420,44 +470,27 @@ const [showCookieConsent, setShowCookieConsent] = useState(false);
 
   const cartTotal = cartSubtotal + deliveryFee;
 
-  const orderDates = Array.from(
-    { length: 30 },
-    (_, index) => {
-      const date = new Date(
-        Date.now() +
-          (index + 1) * 24 * 60 * 60 * 1000
-      );
-
-      return {
-        value: date.toISOString().split("T")[0],
-        label: date.toLocaleDateString("en-GB", {
-          weekday: "short",
-          day: "numeric",
-          month: "short",
-        }),
-      };
+  const saveCustomerDetails = () => {
+    if (
+      !orderDetails.name.trim() ||
+      !orderDetails.phone.trim() ||
+      !orderDetails.location.trim()
+    ) {
+      return;
     }
-  );
-const saveCustomerDetails = () => {
-  if (
-    !orderDetails.name.trim() ||
-    !orderDetails.phone.trim() ||
-    !orderDetails.location.trim()
-  ) {
-    return;
-  }
 
-  localStorage.setItem(
-    "cookieCornerCustomer",
-    JSON.stringify({
-      name: orderDetails.name.trim(),
-      phone: orderDetails.phone.trim(),
-      location: orderDetails.location.trim(),
-    })
-  );
+    localStorage.setItem(
+      "cookieCornerCustomer",
+      JSON.stringify({
+        name: orderDetails.name.trim(),
+        phone: orderDetails.phone.trim(),
+        location: orderDetails.location.trim(),
+      })
+    );
 
-  setShowWelcomePopup(false);
-};
+    setShowWelcomePopup(false);
+  };
+
   const placeOrder = () => {
     if (
       !orderDetails.name.trim() ||
@@ -469,31 +502,28 @@ const saveCustomerDetails = () => {
     ) {
       return;
     }
-localStorage.setItem(
-  "cookieCornerCustomer",
-  JSON.stringify({
-    name: orderDetails.name.trim(),
-    phone: orderDetails.phone.trim(),
-    location: orderDetails.location.trim(),
-  })
-);
+
+    localStorage.setItem(
+      "cookieCornerCustomer",
+      JSON.stringify({
+        name: orderDetails.name.trim(),
+        phone: orderDetails.phone.trim(),
+        location: orderDetails.location.trim(),
+      })
+    );
+
     const orderLines = cart
       .map(
         (item) =>
           `- ${item.name} x${item.quantity} — AED ${
             item.price * item.quantity
-          }${
-            item.details
-              ? ` (${item.details})`
-              : ""
-          }`
+          }${item.details ? ` (${item.details})` : ""}`
       )
       .join("\n");
 
     const message = `Hi Cookie Corner! I'd like to place an order.
 
 Name: ${orderDetails.name}
-
 Phone: ${orderDetails.phone}
 
 ${orderDetails.method}: ${orderDetails.date}${
@@ -503,13 +533,10 @@ ${orderDetails.method}: ${orderDetails.date}${
     }
 
 Order:
-
 ${orderLines}
 
 Subtotal: AED ${cartSubtotal}
-
 Delivery fee: AED ${deliveryFee}
-
 Total: AED ${cartTotal}
 
 Notes: ${orderDetails.notes || "None"}`;
@@ -532,6 +559,7 @@ Notes: ${orderDetails.notes || "None"}`;
     <main
       className="min-h-screen overflow-hidden bg-[#fffaf7] text-[#332321] selection:bg-[#f5b8c9] selection:text-[#332321]"
     >
+      {/* SUBTLE TEXTURE */}
       <div
         className="pointer-events-none fixed inset-0 z-50 opacity-[0.035] mix-blend-multiply"
         style={{
@@ -591,7 +619,7 @@ Notes: ${orderDetails.notes || "None"}`;
           <button
             type="button"
             onClick={() => setShowCart(true)}
-            className="shrink-0 rounded-full border-2 border-[#c77d91] bg-white px-3 py-2 text-[10px] font-bold uppercase tracking-[0.05em] text-[#a95d73] shadow-none transition hover:-translate-y-0.5 md:px-4 md:text-xs md:tracking-[0.12em]"
+            className="shrink-0 rounded-full border-2 border-[#c77d91] bg-white px-3 py-2 text-[10px] font-bold uppercase tracking-[0.05em] text-[#a95d73] transition hover:-translate-y-0.5 md:px-4 md:text-xs md:tracking-[0.12em]"
           >
             Bag ({totalItems})
           </button>
@@ -629,14 +657,14 @@ Notes: ${orderDetails.notes || "None"}`;
             <div className="mt-8 flex flex-wrap gap-4">
               <a
                 href="#menu"
-                className="rounded-full border-0 bg-[#bd7186] px-6 py-3 text-sm font-bold uppercase tracking-[0.12em] text-white shadow-md transition hover:-translate-y-1"
+                className="rounded-full bg-[#bd7186] px-6 py-3 text-sm font-bold uppercase tracking-[0.12em] text-white shadow-md transition hover:-translate-y-1"
               >
                 Shop cookies
               </a>
 
               <a
                 href="#boxes"
-                className="rounded-full border-2 border-[#d9a2b0] bg-white px-6 py-3 text-sm font-bold uppercase tracking-[0.12em] text-[#9f6073] shadow-none transition hover:-translate-y-1"
+                className="rounded-full border-2 border-[#d9a2b0] bg-white px-6 py-3 text-sm font-bold uppercase tracking-[0.12em] text-[#9f6073] transition hover:-translate-y-1"
               >
                 Build a box
               </a>
@@ -716,32 +744,30 @@ Notes: ${orderDetails.notes || "None"}`;
           </div>
 
           <div className="mx-auto max-w-5xl space-y-10">
-            {[6, 7, 8, 9].map(
-              (group, groupIndex) => (
-                <BoxGroup
-                  key={group}
-                  title={
-                    group === 9
-                      ? "Cinnamon Roll"
-                      : group === 8
-                      ? "Kinder club"
-                      : group === 7
-                      ? "Chocolate hour"
-                      : "The classics"
-                  }
-                  subtitle={
-                    boxOptions.find(
-                      (box) => box.group === group
-                    )?.description || ""
-                  }
-                  boxes={boxOptions.filter(
+            {[6, 7, 8, 9].map((group, groupIndex) => (
+              <BoxGroup
+                key={group}
+                title={
+                  group === 9
+                    ? "Cinnamon Roll"
+                    : group === 8
+                    ? "Kinder club"
+                    : group === 7
+                    ? "Chocolate hour"
+                    : "The classics"
+                }
+                subtitle={
+                  boxOptions.find(
                     (box) => box.group === group
-                  )}
-                  onSelect={openBoxBuilder}
-                  accent={groupIndex}
-                />
-              )
-            )}
+                  )?.description || ""
+                }
+                boxes={boxOptions.filter(
+                  (box) => box.group === group
+                )}
+                onSelect={openBoxBuilder}
+                accent={groupIndex}
+              />
+            ))}
           </div>
         </div>
       </section>
@@ -809,7 +835,6 @@ Notes: ${orderDetails.notes || "None"}`;
 
           {/* MINI PRODUCTS */}
           <div className="grid gap-7 md:grid-cols-2">
-
             {/* MINI BROWNIE BITES */}
             <article className="overflow-hidden rounded-[2rem] border border-[#ead2ce] bg-[#fffaf7] shadow-sm transition hover:-translate-y-1">
               <div className="aspect-square overflow-hidden bg-[#e9d1c8]">
@@ -901,7 +926,6 @@ Notes: ${orderDetails.notes || "None"}`;
                 </div>
               </div>
             </article>
-
           </div>
         </div>
       </section>
@@ -916,7 +940,7 @@ Notes: ${orderDetails.notes || "None"}`;
             <div className="rotate-[-5deg] rounded-[2rem] border-8 border-white bg-white shadow-md">
               <img
                 src="/images/choc.jpg"
-                alt="Chocolate brownie cookie"
+                alt="Chocolate cookie"
                 className="aspect-square w-full object-cover"
               />
             </div>
@@ -954,147 +978,58 @@ Notes: ${orderDetails.notes || "None"}`;
           </div>
         </div>
       </section>
-{/* REVIEWS */}
 
-<section className="border-y border-[#efd7dc] bg-[#fff5f6] px-5 py-16 md:px-12">
-  <div className="mx-auto max-w-4xl text-center">
+      {/* REVIEWS */}
+      <section className="border-y border-[#efd7dc] bg-[#fff5f6] px-5 py-16 md:px-12">
+        <div className="mx-auto max-w-4xl text-center">
+          <p className="font-serif text-2xl italic text-[#d9567c]">
+            things people say
+          </p>
 
-    <p className="font-serif text-2xl italic text-[#d9567c]">
-      things people say
-    </p>
+          <div className="mt-8 grid gap-5 md:grid-cols-3">
+            <Quote
+              text="The cookies disappeared before the party even started."
+              name="Shahad"
+            />
 
-    <div className="mt-8 grid gap-5 md:grid-cols-3">
-      <Quote
-        text="The cookies disappeared before the party even started."
-        name="Shahad"
-      />
-      <Quote
-        text="Soft in the middle, crispy at the edges. Perfect."
-        name="Razan"
-      />
-      <Quote
-        text="The cutest box and the most delicious brownies."
-        name="Baraa"
-      />
-    </div>
+            <Quote
+              text="Soft in the middle, crispy at the edges. Perfect."
+              name="Razan"
+            />
 
-  </div>
-</section>
+            <Quote
+              text="The cutest box and the most delicious brownies."
+              name="Baraa"
+            />
+          </div>
+        </div>
+      </section>
 
+      {/* CUSTOMER PICTURES */}
+      <section className="bg-white px-5 py-16 md:px-12">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-10 text-center">
+            <p className="font-serif text-2xl italic text-[#d9567c]">
+              Cookie Corner moments ♡
+            </p>
 
-{/* COOKIE CORNER PICTURES */}
+            <p className="mt-2 text-sm text-[#8f7378]">
+              take a pic, tag us & you might see it here.
+            </p>
+          </div>
 
-<section className="bg-white px-5 py-16 md:px-12">
-  <div className="mx-auto max-w-6xl">
-
-    <div className="mb-10 text-center">
-      <p className="font-serif text-2xl italic text-[#d9567c]">
-        Cookie Corner moments ♡
-      </p>
-      <p className="mt-2 text-sm text-[#8f7378]">
-        take a pic, tag us & you might see it here.
-      </p>
-    </div>
-
-    <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-      
-      <img
-        src="/images/customer-pic-1.jpeg"
-        alt="Cookie Corner"
-        className="h-64 w-full rounded-2xl object-cover"
-      />
-
-      <img
-        src="/images/customer-pic-2.jpeg"
-        alt="Cookie Corner"
-        className="h-64 w-full rounded-2xl object-cover"
-      />
-
-      <img
-        src="/images/customer-pic-3.jpeg"
-        alt="Cookie Corner"
-        className="h-64 w-full rounded-2xl object-cover"
-      />
-
-      <img
-        src="/images/customer-pic-4.jpeg"
-        alt="Cookie Corner"
-        className="h-64 w-full rounded-2xl object-cover"
-      />
-
-      <img
-        src="/images/customer-pic-5.jpeg"
-        alt="Cookie Corner"
-        className="h-64 w-full rounded-2xl object-cover"
-      />
-
-      <img
-        src="/images/customer-pic-6.jpeg"
-        alt="Cookie Corner"
-        className="h-64 w-full rounded-2xl object-cover"
-      />
-
-      <img
-        src="/images/customer-pic-7.jpeg"
-        alt="Cookie Corner"
-        className="h-64 w-full rounded-2xl object-cover"
-      />
-
-      <img
-        src="/images/customer-pic-8.jpeg"
-        alt="Cookie Corner"
-        className="h-64 w-full rounded-2xl object-cover"
-      />
-
-      <img
-        src="/images/customer-pic-9.jpeg"
-        alt="Cookie Corner"
-        className="h-64 w-full rounded-2xl object-cover"
-      />
-
-      <img
-        src="/images/customer-pic-10.jpeg"
-        alt="Cookie Corner"
-        className="h-64 w-full rounded-2xl object-cover"
-      />
-
-      <img
-        src="/images/customer-pic-11.jpeg"
-        alt="Cookie Corner"
-        className="h-64 w-full rounded-2xl object-cover"
-      />
-
-      <img
-        src="/images/customer-pic-12.jpeg"
-        alt="Cookie Corner"
-        className="h-64 w-full rounded-2xl object-cover"
-      />
-
-<img
-        src="/images/customer-pic-13.jpeg"
-        alt="Cookie Corner"
-        className="h-64 w-full rounded-2xl object-cover"
-      />
-
-      <img
-        src="/images/customer-pic-14.jpeg"
-        alt="Cookie Corner"
-        className="h-64 w-full rounded-2xl object-cover"
-      />
- <img
-        src="/images/customer-pic-15.jpeg"
-        alt="Cookie Corner"
-        className="h-64 w-full rounded-2xl object-cover"
-      />
-
-       <img
-        src="/images/customer-pic-16.jpeg"
-        alt="Cookie Corner"
-        className="h-64 w-full rounded-2xl object-cover"
-      />
-    </div>
-  </div>
-</section>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+            {Array.from({ length: 16 }, (_, index) => (
+              <img
+                key={index}
+                src={`/images/customer-pic-${index + 1}.jpeg`}
+                alt="Cookie Corner customer"
+                className="h-64 w-full rounded-2xl object-cover transition duration-300 hover:-translate-y-1 hover:shadow-md"
+              />
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* CONTACT */}
       <section
@@ -1171,6 +1106,27 @@ Notes: ${orderDetails.notes || "None"}`;
         </p>
       </footer>
 
+      {/* ========================================================= */}
+      {/* FLOATING BAG BUTTON                                      */}
+      {/* ========================================================= */}
+
+      <button
+        type="button"
+        onClick={() => setShowCart(true)}
+        aria-label="Open your bag"
+        className="fixed bottom-5 right-5 z-[60] flex items-center gap-3 rounded-full border-2 border-[#c77d91] bg-[#fffaf7] px-4 py-3 text-[#a45d72] shadow-lg transition duration-300 hover:-translate-y-1 hover:shadow-xl md:bottom-7 md:right-7 md:px-5 md:py-3.5"
+      >
+        <span className="text-xl">🛒</span>
+
+        <span className="text-xs font-black uppercase tracking-[0.12em]">
+          Bag
+        </span>
+
+        <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-[#bd7186] px-1.5 text-[10px] font-black text-white">
+          {totalItems}
+        </span>
+      </button>
+
       {/* TOAST */}
       {toast && (
         <div
@@ -1226,7 +1182,7 @@ Notes: ${orderDetails.notes || "None"}`;
         />
       ) : null}
 
-      {/* CART */}
+      {/* CART DRAWER */}
       {showCart && (
         <CartDrawer
           cart={cart}
@@ -1244,145 +1200,128 @@ Notes: ${orderDetails.notes || "None"}`;
         />
       )}
 
+      {/* WELCOME POPUP */}
       {showWelcomePopup && (
-        <>
-          {/* FLOATING CART BUTTON */}
-          {cart.length > 0 && (
-            <button
-              type="button"
-              onClick={() => setShowCart(true)}
-              aria-label="Open your bag"
-              className="fixed bottom-5 right-5 z-[60] flex items-center gap-3 rounded-full border-2 border-[#c77d91] bg-[#fffaf7] px-4 py-3 text-[#a45d72] shadow-lg transition duration-300 hover:-translate-y-1 hover:shadow-xl md:bottom-7 md:right-7 md:px-5 md:py-3.5"
-            >
-              <span className="text-xl">🛒</span>
-
-              <span className="text-xs font-black uppercase tracking-[0.12em]">
-                Bag
-              </span>
-
-              <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-[#bd7186] px-1.5 text-[10px] font-black text-white">
-                {totalItems}
-              </span>
-            </button>
-          )}
-
-          <div className="fixed inset-0 z-[120] flex items-center justify-center bg-[#4b302d]/40 p-5 backdrop-blur-sm">
-            <div className="w-full max-w-md rounded-[2rem] border-4 border-[#f2cbd4] bg-[#fffaf7] p-7 shadow-2xl">
-              <div className="text-center">
-                <div className="flex justify-center">
-                  <img
-                    src="/images/logo.png"
-                    alt="Cookie Corner"
-                    className="h-16 w-16 object-contain"
-                  />
-                </div>
-
-                <p className="mt-3 text-xs font-black uppercase tracking-[0.18em] text-[#bd7186]">
-                  welcome to
-                </p>
-
-                <h2 className="mt-1 font-serif text-4xl font-black text-[#563b35]">
-                  Cookie Corner
-                </h2>
-
-                <p className="mt-3 text-sm leading-6 text-[#765852]">
-                  Save your details for a quicker order next time ♡
-                </p>
+        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-[#4b302d]/40 p-5 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-[2rem] border-4 border-[#f2cbd4] bg-[#fffaf7] p-7 shadow-2xl">
+            <div className="text-center">
+              <div className="flex justify-center">
+                <img
+                  src="/images/logo.png"
+                  alt="Cookie Corner"
+                  className="h-16 w-16 object-contain"
+                />
               </div>
 
-              <div className="mt-7 space-y-4">
-                <div>
-                  <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
-                    Name
-                  </label>
+              <p className="mt-3 text-xs font-black uppercase tracking-[0.18em] text-[#bd7186]">
+                welcome to
+              </p>
 
-                  <input
-                    type="text"
-                    value={orderDetails.name}
-                    onChange={(e) =>
-                      setOrderDetails({
-                        ...orderDetails,
-                        name: e.target.value,
-                      })
-                    }
-                    placeholder="Your name"
-                    autoComplete="name"
-                    className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
-                  />
-                </div>
+              <h2 className="mt-1 font-serif text-4xl font-black text-[#563b35]">
+                Cookie Corner
+              </h2>
 
-                <div>
-                  <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
-                    Phone
-                  </label>
-
-                  <input
-                    type="tel"
-                    value={orderDetails.phone}
-                    onChange={(e) =>
-                      setOrderDetails({
-                        ...orderDetails,
-                        phone: e.target.value,
-                      })
-                    }
-                    placeholder="05XXXXXXXX"
-                    autoComplete="tel"
-                    className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
-                    Area / Location
-                  </label>
-
-                  <input
-                    type="text"
-                    value={orderDetails.location}
-                    onChange={(e) =>
-                      setOrderDetails({
-                        ...orderDetails,
-                        location: e.target.value,
-                      })
-                    }
-                    placeholder="Your area / location"
-                    autoComplete="street-address"
-                    className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
-                  />
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={saveCustomerDetails}
-                disabled={
-                  !orderDetails.name.trim() ||
-                  !orderDetails.phone.trim() ||
-                  !orderDetails.location.trim()
-                }
-                className="mt-6 w-full rounded-full bg-[#bd7186] px-5 py-4 text-sm font-bold uppercase tracking-[0.12em] text-white transition hover:bg-[#a96075] disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                Save my details ♡
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setShowWelcomePopup(false)}
-                className="mt-3 w-full py-2 text-xs font-bold uppercase tracking-[0.12em] text-[#765852] transition hover:text-[#bd7186]"
-              >
-                Maybe later
-              </button>
-
-              <p className="mt-3 text-center text-[11px] leading-4 text-[#9a7b75]">
-                Your details stay saved on this device for faster ordering.
+              <p className="mt-3 text-sm leading-6 text-[#765852]">
+                Save your details for a quicker order next time ♡
               </p>
             </div>
+
+            <div className="mt-7 space-y-4">
+              <div>
+                <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
+                  Name
+                </label>
+
+                <input
+                  type="text"
+                  value={orderDetails.name}
+                  onChange={(e) =>
+                    setOrderDetails({
+                      ...orderDetails,
+                      name: e.target.value,
+                    })
+                  }
+                  placeholder="Your name"
+                  autoComplete="name"
+                  className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
+                  Phone
+                </label>
+
+                <input
+                  type="tel"
+                  value={orderDetails.phone}
+                  onChange={(e) =>
+                    setOrderDetails({
+                      ...orderDetails,
+                      phone: e.target.value,
+                    })
+                  }
+                  placeholder="05XXXXXXXX"
+                  autoComplete="tel"
+                  className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
+                  Area / Location
+                </label>
+
+                <input
+                  type="text"
+                  value={orderDetails.location}
+                  onChange={(e) =>
+                    setOrderDetails({
+                      ...orderDetails,
+                      location: e.target.value,
+                    })
+                  }
+                  placeholder="Your area / location"
+                  autoComplete="street-address"
+                  className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
+                />
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={saveCustomerDetails}
+              disabled={
+                !orderDetails.name.trim() ||
+                !orderDetails.phone.trim() ||
+                !orderDetails.location.trim()
+              }
+              className="mt-6 w-full rounded-full bg-[#bd7186] px-5 py-4 text-sm font-bold uppercase tracking-[0.12em] text-white transition hover:bg-[#a96075] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Save my details ♡
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowWelcomePopup(false)}
+              className="mt-3 w-full py-2 text-xs font-bold uppercase tracking-[0.12em] text-[#765852] transition hover:text-[#bd7186]"
+            >
+              Maybe later
+            </button>
+
+            <p className="mt-3 text-center text-[11px] leading-4 text-[#9a7b75]">
+              Your details stay saved on this device for faster ordering.
+            </p>
           </div>
-        </>
+        </div>
       )}
     </main>
   );
 }
+
+/* ============================================================= */
+/* COOKIE CARD                                                    */
+/* ============================================================= */
 
 function CookieCard({
   cookie,
@@ -1432,6 +1371,10 @@ function CookieCard({
     </article>
   );
 }
+
+/* ============================================================= */
+/* BOX GROUP                                                      */
+/* ============================================================= */
 
 function BoxGroup({
   title,
@@ -1498,6 +1441,10 @@ function BoxGroup({
   );
 }
 
+/* ============================================================= */
+/* QUOTE                                                          */
+/* ============================================================= */
+
 function Quote({
   text,
   name,
@@ -1518,6 +1465,10 @@ function Quote({
   );
 }
 
+/* ============================================================= */
+/* BOX MODAL                                                      */
+/* ============================================================= */
+
 function BoxModal({
   selectedBox,
   boxQuantities,
@@ -1536,11 +1487,10 @@ function BoxModal({
   addBoxToCart: () => void;
   close: () => void;
 }) {
-  const availableCookies = cookies.filter(
-    (cookie) =>
-      selectedBox.group === 9
-        ? cookie.name === "Cinnamon Roll Cookie"
-        : cookie.price === selectedBox.group
+  const availableCookies = cookies.filter((cookie) =>
+    selectedBox.group === 9
+      ? cookie.name === "Cinnamon Roll Cookie"
+      : cookie.price === selectedBox.group
   );
 
   return (
@@ -1564,7 +1514,8 @@ function BoxModal({
           <button
             type="button"
             onClick={close}
-            className="h-9 w-9 border-2 border-[#332321] text-xl font-black"
+            aria-label="Close box builder"
+            className="h-9 w-9 shrink-0 border-2 border-[#332321] text-xl font-black"
           >
             ×
           </button>
@@ -1574,7 +1525,7 @@ function BoxModal({
           {availableCookies.map((cookie) => (
             <div
               key={cookie.name}
-              className="flex items-center justify-between border-2 border-[#dec3c2] bg-white p-3"
+              className="flex items-center justify-between gap-4 border-2 border-[#dec3c2] bg-white p-3"
             >
               <div>
                 <p className="font-serif text-xl font-bold">
@@ -1615,7 +1566,7 @@ function BoxModal({
           ))}
         </div>
 
-        <div className="mt-6 flex items-center justify-between border-2 border-[#332321] bg-[#f7e8e4] p-4">
+        <div className="mt-6 flex items-center justify-between gap-4 border-2 border-[#332321] bg-[#f7e8e4] p-4">
           <span className="font-black uppercase tracking-[0.12em]">
             {boxTotal} / {selectedBox.size} selected
           </span>
@@ -1633,14 +1584,16 @@ function BoxModal({
         >
           {boxTotal === selectedBox.size
             ? `Add box · AED ${selectedBox.price}`
-            : `Choose ${
-                selectedBox.size - boxTotal
-              } more`}
+            : `Choose ${selectedBox.size - boxTotal} more`}
         </button>
       </div>
     </div>
   );
 }
+
+/* ============================================================= */
+/* CART DRAWER                                                    */
+/* ============================================================= */
 
 function CartDrawer({
   cart,
@@ -1670,29 +1623,15 @@ function CartDrawer({
     id: string,
     change: number
   ) => void;
-  orderDetails: {
-    name: string;
-    phone: string;
-    method: string;
-    area: string;
-    date: string;
-    location: string;
-    notes: string;
-  };
-  setOrderDetails: (details: {
-    name: string;
-    phone: string;
-    method: string;
-    area: string;
-    date: string;
-    location: string;
-    notes: string;
-  }) => void;
+  orderDetails: OrderDetails;
+  setOrderDetails: (
+    details: OrderDetails
+  ) => void;
   placeOrder: () => void;
   close: () => void;
 }) {
   const updateDetails = (
-    field: string,
+    field: keyof OrderDetails,
     value: string
   ) => {
     setOrderDetails({
@@ -1712,6 +1651,7 @@ function CartDrawer({
   return (
     <div className="fixed inset-0 z-[80] flex justify-end bg-[#4b302d]/30 backdrop-blur-sm">
       <div className="h-full w-full max-w-xl overflow-y-auto bg-[#fffaf7] shadow-2xl">
+        {/* DRAWER HEADER */}
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#efd7dc] bg-[#fffaf7]/95 px-5 py-5 backdrop-blur-sm">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#bd7186]">
@@ -1720,9 +1660,7 @@ function CartDrawer({
 
             <h2 className="mt-1 font-serif text-3xl font-black">
               {totalCookies}{" "}
-              {totalCookies === 1
-                ? "cookie"
-                : "cookies"}
+              {totalCookies === 1 ? "cookie" : "cookies"}
             </h2>
 
             {totalItems !== totalCookies && (
@@ -1736,6 +1674,7 @@ function CartDrawer({
           <button
             type="button"
             onClick={close}
+            aria-label="Close bag"
             className="h-10 w-10 rounded-full border-2 border-[#332321] text-xl font-black"
           >
             ×
@@ -1752,8 +1691,7 @@ function CartDrawer({
               </h3>
 
               <p className="mt-3 text-sm text-[#765852]">
-                Add some cookies and they’ll show up
-                here.
+                Add some cookies and they’ll show up here.
               </p>
 
               <button
@@ -1766,6 +1704,7 @@ function CartDrawer({
             </div>
           ) : (
             <>
+              {/* CART ITEMS */}
               <div className="space-y-4">
                 {cart.map((item) => (
                   <div
@@ -1793,10 +1732,7 @@ function CartDrawer({
                         <button
                           type="button"
                           onClick={() =>
-                            changeQuantity(
-                              item.id,
-                              -1
-                            )
+                            changeQuantity(item.id, -1)
                           }
                           className="h-8 w-8 rounded-full bg-[#f8dce3] font-bold text-[#8e5265]"
                         >
@@ -1810,10 +1746,7 @@ function CartDrawer({
                         <button
                           type="button"
                           onClick={() =>
-                            changeQuantity(
-                              item.id,
-                              1
-                            )
+                            changeQuantity(item.id, 1)
                           }
                           className="h-8 w-8 rounded-full bg-[#f8dce3] font-bold text-[#8e5265]"
                         >
@@ -1823,13 +1756,13 @@ function CartDrawer({
                     </div>
 
                     <div className="mt-3 border-t border-[#efd7dc] pt-3 text-right text-sm font-black">
-                      AED{" "}
-                      {item.price * item.quantity}
+                      AED {item.price * item.quantity}
                     </div>
                   </div>
                 ))}
               </div>
 
+              {/* MINIMUM ORDER */}
               {totalCookies < 4 && (
                 <div className="mt-5 rounded-2xl bg-[#fff0f3] p-4 text-sm font-bold text-[#a45d72]">
                   Minimum order is 4 cookies. Add{" "}
@@ -1837,12 +1770,14 @@ function CartDrawer({
                 </div>
               )}
 
+              {/* ORDER DETAILS */}
               <div className="mt-8 border-y-2 border-[#332321] py-5">
                 <h3 className="font-serif text-2xl font-black">
                   Order details
                 </h3>
 
                 <div className="mt-5 space-y-4">
+                  {/* NAME */}
                   <div>
                     <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
                       Name
@@ -1852,16 +1787,15 @@ function CartDrawer({
                       type="text"
                       value={orderDetails.name}
                       onChange={(e) =>
-                        updateDetails(
-                          "name",
-                          e.target.value
-                        )
+                        updateDetails("name", e.target.value)
                       }
                       placeholder="Your name"
+                      autoComplete="name"
                       className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
                     />
                   </div>
 
+                  {/* PHONE */}
                   <div>
                     <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
                       Phone
@@ -1871,16 +1805,15 @@ function CartDrawer({
                       type="tel"
                       value={orderDetails.phone}
                       onChange={(e) =>
-                        updateDetails(
-                          "phone",
-                          e.target.value
-                        )
+                        updateDetails("phone", e.target.value)
                       }
                       placeholder="05XXXXXXXX"
+                      autoComplete="tel"
                       className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
                     />
                   </div>
 
+                  {/* ORDER TYPE */}
                   <div>
                     <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
                       Order type
@@ -1889,10 +1822,7 @@ function CartDrawer({
                     <select
                       value={orderDetails.method}
                       onChange={(e) =>
-                        updateDetails(
-                          "method",
-                          e.target.value
-                        )
+                        updateDetails("method", e.target.value)
                       }
                       className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
                     >
@@ -1906,8 +1836,8 @@ function CartDrawer({
                     </select>
                   </div>
 
-                  {orderDetails.method ===
-                    "Delivery" && (
+                  {/* DELIVERY DETAILS */}
+                  {orderDetails.method === "Delivery" && (
                     <>
                       <div>
                         <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
@@ -1941,9 +1871,7 @@ function CartDrawer({
 
                         <input
                           type="text"
-                          value={
-                            orderDetails.location
-                          }
+                          value={orderDetails.location}
                           onChange={(e) =>
                             updateDetails(
                               "location",
@@ -1951,12 +1879,14 @@ function CartDrawer({
                             )
                           }
                           placeholder="Area / location"
+                          autoComplete="street-address"
                           className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
                         />
                       </div>
                     </>
                   )}
 
+                  {/* DATE */}
                   <div>
                     <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
                       Order date
@@ -1987,6 +1917,7 @@ function CartDrawer({
                     </select>
                   </div>
 
+                  {/* NOTES */}
                   <div>
                     <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
                       Notes
@@ -2008,6 +1939,7 @@ function CartDrawer({
                 </div>
               </div>
 
+              {/* TOTALS */}
               <div className="mt-6 space-y-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-[#765852]">
@@ -2040,6 +1972,7 @@ function CartDrawer({
                 </div>
               </div>
 
+              {/* WHATSAPP BUTTON */}
               <button
                 type="button"
                 onClick={placeOrder}
@@ -2049,13 +1982,11 @@ function CartDrawer({
                 Send order on WhatsApp
               </button>
 
-              {!readyToOrder &&
-                totalCookies >= 4 && (
-                  <p className="mt-3 text-center text-xs font-bold text-[#a45d72]">
-                    Please complete your order
-                    details above.
-                  </p>
-                )}
+              {!readyToOrder && totalCookies >= 4 && (
+                <p className="mt-3 text-center text-xs font-bold text-[#a45d72]">
+                  Please complete your order details above.
+                </p>
+              )}
             </>
           )}
         </div>
