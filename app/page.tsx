@@ -1426,7 +1426,9 @@ function BoxGroup({
                 AED {box.price}
               </span>
             </div>
-
+<p className="mt-3 text-base font-black uppercase tracking-[0.08em] text-[#bd7186]">
+  {box.size} cookies
+</p>
             <p className="mt-3 text-xs font-bold uppercase tracking-[0.1em] text-[#bd7186]">
               {box.size} cookies
             </p>
