@@ -1081,7 +1081,23 @@ Notes: ${orderDetails.notes || "None"}`;
         alt="Cookie Corner"
         className="h-64 w-full rounded-2xl object-cover"
       />
+ <img
+        src="/images/customer-pic-15.jpeg"
+        alt="Cookie Corner"
+        className="h-64 w-full rounded-2xl object-cover"
+      />
 
+     <img
+        src="/images/customer-pic-16.jpeg"
+        alt="Cookie Corner"
+        className="h-64 w-full rounded-2xl object-cover"
+      />
+
+       <img
+        src="/images/customer-pic-17.jpeg"
+        alt="Cookie Corner"
+        className="h-64 w-full rounded-2xl object-cover"
+      />
     </div>
   </div>
 </section>
