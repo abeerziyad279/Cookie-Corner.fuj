@@ -22,7 +22,7 @@ const cookies: Cookie[] = [
   { name: "M&M's Cookie", description: "Chewy cookie dough, colorful M&M's and chocolate in every bite.", price: 6, image: "/images/mms.jpg" },
   { name: "Birthday Cake Cookie", description: "Sprinkles, creamy white chocolate and birthday energy.", price: 6, image: "/images/birthday-cake.jpg" },
   { name: "Red Velvet Cookie", description: "Velvety cocoa cookie with creamy white chocolate chunks.", price: 7, image: "/images/red-velvet.jpg" },
-  { name: "Double Chocolate", description: "Deep chocolate flavor with a soft, fudgy middle.", price: 7, image: "/images/double-chocolate.jpg" },
+  { name: "Double Chocolate", description: "Deep chocolate flavor with a soft, fudgy middle.", price: 7, image: "/images/choc.jpg" },
   { name: "Kinder Cookie", description: "A soft cookie loaded with Kinder chocolate.", price: 8, image: "/images/kinder.jpg" },
   { name: "Cinnamon Roll Cookie", description: "Cinnamon sugar, sweet drizzle and all the cozy notes.", price: 8, image: "/images/cinnamon-roll.jpg" },
 ];
