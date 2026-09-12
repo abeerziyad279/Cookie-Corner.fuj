@@ -1242,7 +1242,28 @@ Notes: ${orderDetails.notes || "None"}`;
           placeOrder={placeOrder}
           close={() => setShowCart(false)}
         />
-      )}{showWelcomePopup && (
+      )}
+
+      {/* FLOATING CART BUTTON */}
+{cart.length > 0 && (
+  <button
+    type="button"
+    onClick={() => setShowCart(true)}
+    aria-label="Open your bag"
+    className="fixed bottom-5 right-5 z-[60] flex items-center gap-3 rounded-full border-2 border-[#c77d91] bg-[#fffaf7] px-4 py-3 text-[#a45d72] shadow-lg transition duration-300 hover:-translate-y-1 hover:shadow-xl md:bottom-7 md:right-7 md:px-5 md:py-3.5"
+  >
+    <span className="text-xl">🛍️</span>
+
+    <span className="text-xs font-black uppercase tracking-[0.12em]">
+      Bag
+    </span>
+
+    <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-[#bd7186] px-1.5 text-[10px] font-black text-white">
+      {totalItems}
+    </span>
+  </button>
+)}
+  {showWelcomePopup && (
   <div className="fixed inset-0 z-[120] flex items-center justify-center bg-[#4b302d]/40 p-5 backdrop-blur-sm">
     <div className="w-full max-w-md rounded-[2rem] border-4 border-[#f2cbd4] bg-[#fffaf7] p-7 shadow-2xl">
       <div className="text-center">
