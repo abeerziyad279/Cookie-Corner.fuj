@@ -999,85 +999,85 @@ Notes: ${orderDetails.notes || "None"}`;
     <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
       
       <img
-        src="/images/customer-pic-1.jpg"
+        src="/images/customer-pic-1.jpeg"
         alt="Cookie Corner"
         className="h-64 w-full rounded-2xl object-cover"
       />
 
       <img
-        src="/images/customer-pic-2.jpg"
+        src="/images/customer-pic-2.jpeg"
         alt="Cookie Corner"
         className="h-64 w-full rounded-2xl object-cover"
       />
 
       <img
-        src="/images/customer-pic-3.jpg"
+        src="/images/customer-pic-3.jpeg"
         alt="Cookie Corner"
         className="h-64 w-full rounded-2xl object-cover"
       />
 
       <img
-        src="/images/customer-pic-4.jpg"
+        src="/images/customer-pic-4.jpeg"
         alt="Cookie Corner"
         className="h-64 w-full rounded-2xl object-cover"
       />
 
       <img
-        src="/images/customer-pic-5.jpg"
+        src="/images/customer-pic-5.jpeg"
         alt="Cookie Corner"
         className="h-64 w-full rounded-2xl object-cover"
       />
 
       <img
-        src="/images/customer-pic-6.jpg"
+        src="/images/customer-pic-6.jpeg"
         alt="Cookie Corner"
         className="h-64 w-full rounded-2xl object-cover"
       />
 
       <img
-        src="/images/customer-pic-7.jpg"
+        src="/images/customer-pic-7.jpeg"
         alt="Cookie Corner"
         className="h-64 w-full rounded-2xl object-cover"
       />
 
       <img
-        src="/images/customer-pic-8.jpg"
+        src="/images/customer-pic-8.jpeg"
         alt="Cookie Corner"
         className="h-64 w-full rounded-2xl object-cover"
       />
 
       <img
-        src="/images/customer-pic-9.jpg"
+        src="/images/customer-pic-9.jpeg"
         alt="Cookie Corner"
         className="h-64 w-full rounded-2xl object-cover"
       />
 
       <img
-        src="/images/customer-pic-10.jpg"
+        src="/images/customer-pic-10.jpeg"
         alt="Cookie Corner"
         className="h-64 w-full rounded-2xl object-cover"
       />
 
       <img
-        src="/images/customer-pic-11.jpg"
+        src="/images/customer-pic-11.jpeg"
         alt="Cookie Corner"
         className="h-64 w-full rounded-2xl object-cover"
       />
-      
+
       <img
-        src="/images/customer-pic-12.jpg"
+        src="/images/customer-pic-12.jpeg"
         alt="Cookie Corner"
         className="h-64 w-full rounded-2xl object-cover"
       />
 
 <img
-        src="/images/customer-pic-13.jpg"
+        src="/images/customer-pic-13.jpeg"
         alt="Cookie Corner"
         className="h-64 w-full rounded-2xl object-cover"
       />
 
       <img
-        src="/images/customer-pic-14.jpg"
+        src="/images/customer-pic-14.jpeg"
         alt="Cookie Corner"
         className="h-64 w-full rounded-2xl object-cover"
       />
