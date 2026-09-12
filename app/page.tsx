@@ -15,6 +15,7 @@ type CartItem = {
   price: number;
   quantity: number;
   details?: string;
+  itemCount?: number;
 };
 
 const cookies: Cookie[] = [
@@ -194,9 +195,11 @@ export default function Home() {
   const [showCart, setShowCart] = useState(false);
   const [toast, setToast] = useState("");
   const [orderSent, setOrderSent] = useState(false);
+
   const [selectedBox, setSelectedBox] = useState<
     (typeof boxOptions)[number] | null
   >(null);
+
   const [boxQuantities, setBoxQuantities] = useState<
     Record<string, number>
   >({});
@@ -236,11 +239,44 @@ export default function Home() {
           name: cookie.name,
           price: cookie.price,
           quantity: 1,
+          itemCount: 1,
         },
       ];
     });
 
     showToast(`${cookie.name} added to your bag`);
+  };
+
+  const addExtraToCart = (
+    id: string,
+    name: string,
+    price: number,
+    itemCount: number
+  ) => {
+    setCart((current) => {
+      const existing = current.find((item) => item.id === id);
+
+      if (existing) {
+        return current.map((item) =>
+          item.id === id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
+      }
+
+      return [
+        ...current,
+        {
+          id,
+          name,
+          price,
+          quantity: 1,
+          itemCount,
+        },
+      ];
+    });
+
+    showToast(`${name} added to your bag`);
   };
 
   const changeQuantity = (id: string, change: number) => {
@@ -325,6 +361,7 @@ export default function Home() {
         price: selectedBox.price,
         quantity: 1,
         details,
+        itemCount: selectedBox.size,
       },
     ]);
 
@@ -332,26 +369,16 @@ export default function Home() {
     setSelectedBox(null);
   };
 
-  // Number of items shown in the Bag button.
-  // A whole box counts as 1 bag item.
   const totalItems = cart.reduce(
     (total, item) => total + item.quantity,
     0
   );
 
-  // Actual number of cookies in the order.
-  // A 4-cookie box counts as 4 cookies, etc.
-  const totalCookies = cart.reduce((total, item) => {
-    if (item.id.startsWith("box-")) {
-      const boxSize = Number(
-        item.name.match(/\d+/)?.[0] || 0
-      );
-
-      return total + boxSize * item.quantity;
-    }
-
-    return total + item.quantity;
-  }, 0);
+  const totalCookies = cart.reduce(
+    (total, item) =>
+      total + (item.itemCount ?? 1) * item.quantity,
+    0
+  );
 
   const cartSubtotal = cart.reduce(
     (total, item) =>
@@ -415,7 +442,9 @@ export default function Home() {
     const message = `Hi Cookie Corner! I'd like to place an order.
 
 Name: ${orderDetails.name}
+
 Phone: ${orderDetails.phone}
+
 ${orderDetails.method}: ${orderDetails.date}${
       orderDetails.method === "Delivery"
         ? `\nArea: ${orderDetails.area}\nLocation: ${orderDetails.location}`
@@ -423,11 +452,15 @@ ${orderDetails.method}: ${orderDetails.date}${
     }
 
 Order:
+
 ${orderLines}
 
 Subtotal: AED ${cartSubtotal}
+
 Delivery fee: AED ${deliveryFee}
+
 Total: AED ${cartTotal}
+
 Notes: ${orderDetails.notes || "None"}`;
 
     const whatsappUrl = `https://wa.me/971507576175?text=${encodeURIComponent(
@@ -520,7 +553,7 @@ Notes: ${orderDetails.notes || "None"}`;
         className="relative border-b border-[#efd7dc] bg-[#fff0f3] px-5 py-14 md:px-12 md:py-24"
         style={gridStyle}
       >
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-5">
+        <div className="mx-auto grid max-w-7xl items-center gap-10 md:grid-cols-2 md:gap-12">
           <div className="relative z-10">
             <span className="inline-block rotate-[-3deg] border-2 border-[#332321] bg-[#fffaf7] px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] shadow-[3px_3px_0_#332321]">
               small batch bakery
@@ -534,10 +567,12 @@ Notes: ${orderDetails.notes || "None"}`;
               </span>
             </h1>
 
-            <p className="mt-7 max-w-md text-lg leading-7 text-[#5d4039]">
-              Chunky, gooey, freshly baked treats made
-              for birthdays, bad days, and everything
-              worth celebrating.
+            <p className="mt-7 max-w-[600px] text-lg leading-7 text-[#5d4039]">
+              Chunky, gooey, freshly baked treats made for
+              birthdays, bad days, and{" "}
+              <span className="md:whitespace-nowrap">
+                everything worth celebrating.
+              </span>
             </p>
 
             <div className="mt-8 flex flex-wrap gap-4">
@@ -557,16 +592,16 @@ Notes: ${orderDetails.notes || "None"}`;
             </div>
           </div>
 
-          <div className="relative min-h-[360px] md:min-h-[490px]">
-            <span className="absolute right-4 top-2 z-20 rotate-[8deg] font-serif text-3xl italic text-[#d9567c] md:right-20">
+          <div className="relative mx-auto mt-6 min-h-[360px] w-full max-w-[460px] md:mt-0 md:min-h-[490px]">
+            <span className="absolute right-0 top-0 z-20 rotate-[8deg] font-serif text-3xl italic text-[#d9567c] md:right-4">
               baked with love
             </span>
 
-            <div className="absolute left-0 top-10 h-64 w-64 rotate-[-7deg] rounded-[2.25rem] border-8 border-white bg-[#f8d9df] p-3 shadow-md md:left-10 md:h-96 md:w-96">
+            <div className="absolute left-1/2 top-12 aspect-square w-[82%] max-w-[390px] -translate-x-1/2 rotate-[-7deg] rounded-[2.25rem] border-8 border-white bg-[#f8d9df] p-3 shadow-md md:top-14 md:w-[88%] md:max-w-[420px]">
               <img
                 src="/images/classic.jpg"
                 alt="Fresh chocolate chip cookie"
-                className="h-full w-full object-cover"
+                className="h-full w-full rounded-[1.5rem] object-cover"
               />
             </div>
           </div>
@@ -660,27 +695,162 @@ Notes: ${orderDetails.notes || "None"}`;
         </div>
       </section>
 
-      {/* BROWNIE TRAYS */}
+      {/* SOMETHING EXTRA */}
       <section className="border-b border-[#efd7dc] bg-[#f7e8e4] px-5 py-16 md:px-12 md:py-20">
-        <div className="mx-auto flex max-w-7xl flex-col justify-between gap-8 md:flex-row md:items-end">
-          <div>
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-10">
             <p className="font-serif text-2xl italic text-[#bd7186]">
               something extra
             </p>
 
-            <h2 className="mt-2 font-serif text-5xl font-black tracking-[-0.06em] text-[#563b35]">
-              Brownie Trays
+            <h2 className="mt-2 font-serif text-5xl font-black tracking-[-0.06em] text-[#563b35] md:text-6xl">
+              sweet little extras.
             </h2>
-
-            <p className="mt-4 max-w-xl leading-7 text-[#765852]">
-              Rich, fudgy brownies baked fresh and cut
-              into 20 generous pieces. Perfect for
-              sharing, gifting, or keeping all to yourself.
-            </p>
           </div>
 
-          <div className="rounded-full bg-white px-6 py-3 text-center text-sm font-bold text-[#a45d72] shadow-sm">
-            20 pieces · AED 50
+          {/* BROWNIES */}
+          <div className="mb-10 grid overflow-hidden rounded-[2rem] border border-[#ead2ce] bg-[#fffaf7] shadow-sm md:grid-cols-2">
+            <div className="relative min-h-[320px] overflow-hidden bg-[#e9d1c8] md:min-h-[430px]">
+              <img
+                src="/images/brownie.jpg"
+                alt="Brownies"
+                className="h-full w-full object-cover transition duration-500 hover:scale-105"
+              />
+            </div>
+
+            <div className="flex flex-col justify-center p-7 md:p-10">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#bd7186]">
+                made for sharing
+              </p>
+
+              <h3 className="mt-2 font-serif text-4xl font-black tracking-[-0.05em] text-[#563b35] md:text-5xl">
+                Brownies
+              </h3>
+
+              <p className="mt-4 max-w-md leading-7 text-[#765852]">
+                Rich, fudgy brownies baked fresh and cut
+                into 20 generous pieces. Perfect for sharing,
+                gifting, or keeping all to yourself.
+              </p>
+
+              <div className="mt-6 flex flex-wrap items-center gap-4">
+                <span className="rounded-full bg-[#f8dce3] px-5 py-2 text-sm font-black text-[#a45d72]">
+                  20 pieces · AED 100
+                </span>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    addExtraToCart(
+                      "brownies",
+                      "Brownies",
+                      100,
+                      20
+                    )
+                  }
+                  className="rounded-full bg-[#bd7186] px-5 py-3 text-xs font-bold uppercase tracking-[0.14em] text-white transition hover:bg-[#a96075]"
+                >
+                  Add to bag +
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* MINI PRODUCTS */}
+          <div className="grid gap-7 md:grid-cols-2">
+
+            {/* MINI BROWNIE BITES */}
+            <article className="overflow-hidden rounded-[2rem] border border-[#ead2ce] bg-[#fffaf7] shadow-sm transition hover:-translate-y-1">
+              <div className="aspect-square overflow-hidden bg-[#e9d1c8]">
+                <img
+                  src="/images/brownie-bites.jpg"
+                  alt="Mini Brownie Bites"
+                  className="h-full w-full object-cover transition duration-500 hover:scale-105"
+                />
+              </div>
+
+              <div className="p-6 text-center">
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-[#bd7186]">
+                  little bites
+                </p>
+
+                <h3 className="mt-2 font-serif text-3xl font-black text-[#563b35]">
+                  Mini Brownie Bites
+                </h3>
+
+                <p className="mt-2 text-sm text-[#765852]">
+                  Small, fudgy brownie bites made for sharing.
+                </p>
+
+                <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+                  <span className="rounded-full bg-[#f8dce3] px-4 py-2 text-xs font-black text-[#a45d72]">
+                    15 pieces · AED 25
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      addExtraToCart(
+                        "mini-brownie-bites",
+                        "Mini Brownie Bites",
+                        25,
+                        15
+                      )
+                    }
+                    className="rounded-full bg-[#bd7186] px-4 py-3 text-xs font-bold uppercase tracking-[0.12em] text-white transition hover:bg-[#a96075]"
+                  >
+                    Add to bag +
+                  </button>
+                </div>
+              </div>
+            </article>
+
+            {/* MINI COOKIES */}
+            <article className="overflow-hidden rounded-[2rem] border border-[#ead2ce] bg-[#fffaf7] shadow-sm transition hover:-translate-y-1">
+              <div className="aspect-square overflow-hidden bg-[#f7d9dd]">
+                <img
+                  src="/images/mini-cookies.jpg"
+                  alt="Mini Cookies"
+                  className="h-full w-full object-cover transition duration-500 hover:scale-105"
+                />
+              </div>
+
+              <div className="p-6 text-center">
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-[#bd7186]">
+                  tiny & cute
+                </p>
+
+                <h3 className="mt-2 font-serif text-3xl font-black text-[#563b35]">
+                  Mini Cookies
+                </h3>
+
+                <p className="mt-2 text-sm text-[#765852]">
+                  Bite-sized cookies made for snacking and sharing.
+                </p>
+
+                <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+                  <span className="rounded-full bg-[#f8dce3] px-4 py-2 text-xs font-black text-[#a45d72]">
+                    15 pieces · AED 30
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      addExtraToCart(
+                        "mini-cookies",
+                        "Mini Cookies",
+                        30,
+                        15
+                      )
+                    }
+                    className="rounded-full bg-[#bd7186] px-4 py-3 text-xs font-bold uppercase tracking-[0.12em] text-white transition hover:bg-[#a96075]"
+                  >
+                    Add to bag +
+                  </button>
+                </div>
+              </div>
+            </article>
+
           </div>
         </div>
       </section>
