@@ -128,28 +128,53 @@ window.location.href = `https://wa.me/971507576175?text=${encodeURIComponent(mes
     <main className="min-h-screen overflow-hidden bg-[#fffaf7] text-[#332321] selection:bg-[#f5b8c9] selection:text-[#332321]">
       <div className="pointer-events-none fixed inset-0 z-50 opacity-[0.035] mix-blend-multiply" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 160 160%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%22.9%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22 opacity=%22.35%22/%3E%3C/svg%3E')" }} />
 
-      <nav className="sticky top-0 z-40 border-b border-[#dec3c2] bg-[#fffaf7]/90 px-4 py-3 backdrop-blur-sm md:px-12 md:py-4">
-  <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
-<a href="#home" className="group flex min-w-0 items-center gap-2">           <img
-  src="/images/logo.png"
-  alt="Cookie Corner"
-className="shrink-0 rounded-full border-2 border-[#c77d91] bg-white px-3 py-2 text-[11px] font-bold uppercase tracking-[0.08em] text-[#a95d73] shadow-none transition hover:-translate-y-0.5 md:px-4 md:text-xs md:tracking-[0.12em]"<span className="truncate font-serif text-xl font-bold tracking-[-0.06em] md:text-2xl">
-  cookie corner
-</span>          </a>
-          <div className="hidden items-center justify-center gap-8 text-[11px] font-bold uppercase tracking-[0.18em] md:flex">
-            <a href="#menu" className="transition hover:text-[#d65f83]">Menu</a>
-            <a href="#boxes" className="transition hover:text-[#d65f83]">Boxes</a>
-            <a href="#about" className="transition hover:text-[#d65f83]">Our story</a>
-            <a href="#contact" className="transition hover:text-[#d65f83]">Contact</a>
-          </div>
-          <button onClick={() => setShowCart(true)} className="justify-self-end rounded-full border-2 border-[#c77d91] bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.12em] text-[#a95d73] shadow-none transition hover:-translate-y-0.5">Bag ({totalItems})</button>
-        </div>
-      </nav>
+ <nav className="sticky top-0 z-40 border-b border-[#dec3c2] bg-[#fffaf7]/90 px-3 py-3 backdrop-blur-sm md:px-12 md:py-4">
+  <div className="mx-auto flex max-w-7xl items-center justify-between gap-5">
+
+    <a
+      href="#home"
+      className="group flex min-w-0 flex-1 items-center gap-2 pr-3"
+    >
+      <img
+        src="/images/logo.png"
+        alt="Cookie Corner"
+        className="h-10 w-10 shrink-0 object-contain transition group-hover:scale-105 md:h-14 md:w-14"
+      />
+
+      <span className="truncate font-serif text-lg font-bold tracking-[-0.06em] md:text-2xl">
+        cookie corner
+      </span>
+    </a>
+
+    <div className="hidden items-center justify-center gap-8 text-[11px] font-bold uppercase tracking-[0.18em] md:flex">
+      <a href="#menu" className="transition hover:text-[#d65f83]">
+        Menu
+      </a>
+      <a href="#boxes" className="transition hover:text-[#d65f83]">
+        Boxes
+      </a>
+      <a href="#about" className="transition hover:text-[#d65f83]">
+        Our story
+      </a>
+      <a href="#contact" className="transition hover:text-[#d65f83]">
+        Contact
+      </a>
+    </div>
+
+    <button
+      type="button"
+      onClick={() => setShowCart(true)}
+      className="shrink-0 rounded-full border-2 border-[#c77d91] bg-white px-3 py-2 text-[10px] font-bold uppercase tracking-[0.05em] text-[#a95d73] shadow-none transition hover:-translate-y-0.5 md:px-4 md:text-xs md:tracking-[0.12em]"
+    >
+      Bag ({totalItems})
+    </button>
+
+  </div>
+</nav>
 
 
       <section id="home" className="relative border-b border-[#efd7dc] bg-[#fff0f3] px-5 py-14 md:px-12 md:py-24" style={gridStyle}>
-        <div className="mx-auto grid max-w-7xl items-center gap-12 md:grid-cols-[0.9fr_1.1fr]">
-          <div className="relative z-10">
+<div className="mx-auto flex max-w-7xl items-center justify-between gap-5">          <div className="relative z-10">
             <span className="inline-block rotate-[-3deg] border-2 border-[#332321] bg-[#fffaf7] px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] shadow-[3px_3px_0_#332321]">small batch bakery</span>
             <h1 className="mt-6 max-w-xl font-serif text-6xl font-black leading-[0.87] tracking-[-0.07em] md:text-8xl">soft cookies.<br /><span className="text-[#d9567c]">big feelings.</span></h1>
             <p className="mt-7 max-w-md text-lg leading-7 text-[#5d4039]">Chunky, gooey, freshly baked treats made for birthdays, bad days, and everything worth celebrating.</p>
@@ -217,7 +242,7 @@ className="shrink-0 rounded-full border-2 border-[#c77d91] bg-white px-3 py-2 te
 
       {toast && <div role="status" aria-live="polite" className="fixed bottom-5 left-1/2 z-[100] -translate-x-1/2 rounded-full bg-[#563b35] px-5 py-3 text-center text-sm font-bold text-white shadow-lg">{toast}</div>}
       {orderSent && <div className="fixed inset-0 z-[110] flex items-center justify-center bg-[#4b302d]/30 p-5 backdrop-blur-sm"><div className="w-full max-w-md rounded-[2rem] border border-[#efd7dc] bg-[#fffaf7] p-8 text-center shadow-2xl"><p className="text-4xl">♡</p><p className="mt-3 text-xs font-bold uppercase tracking-[0.18em] text-[#bd7186]">thank you</p><h2 className="mt-2 font-serif text-4xl font-black text-[#563b35]">your order is on its way to us.</h2><p className="mt-4 leading-7 text-[#765852]">WhatsApp has opened with your order details. Send the message there, then come back here — we’ll start preparing your treats once we receive it.</p><button onClick={() => setOrderSent(false)} className="mt-7 rounded-full bg-[#bd7186] px-6 py-3 text-sm font-bold uppercase tracking-[0.12em] text-white">Back to Cookie Corner</button></div></div>}
-      {selectedBox && <BoxModal selectedBox={selectedBox} boxQuantities={boxQuantities} boxTotal={boxTotal} updateBoxQuantity={updateBoxQuantity} addBoxToCart={addBoxToCart} close={() => setSelectedBox(null)} />}
+      {selectedBox ? <BoxModal selectedBox={selectedBox} boxQuantities={boxQuantities} boxTotal={boxTotal} updateBoxQuantity={updateBoxQuantity} addBoxToCart={addBoxToCart} close={() => setSelectedBox(null)} /> : null}
       {showCart && <CartDrawer cart={cart} cartTotal={cartTotal} totalItems={totalItems} cartSubtotal={cartSubtotal} deliveryFee={deliveryFee} orderDates={orderDates} changeQuantity={changeQuantity} orderDetails={orderDetails} setOrderDetails={setOrderDetails} placeOrder={placeOrder} close={() => setShowCart(false)} />}
     </main>
   );
