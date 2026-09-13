@@ -108,7 +108,6 @@ const boxOptions = [
     price: 115,
     description: "Classic, M&M's & Birthday Cake",
   },
-
   {
     size: 4,
     group: 7,
@@ -137,7 +136,6 @@ const boxOptions = [
     price: 130,
     description: "Red Velvet & Double Chocolate",
   },
-
   {
     size: 4,
     group: 8,
@@ -166,7 +164,6 @@ const boxOptions = [
     price: 145,
     description: "Kinder cookies",
   },
-
   {
     size: 4,
     group: 9,
@@ -432,7 +429,7 @@ export default function Home() {
       ...current,
       {
         id: `box-${Date.now()}`,
-        name: selectedBox.label,
+        name: `${selectedBox.label} Cookie Box`,
         price: selectedBox.price,
         quantity: 1,
         details,
@@ -524,6 +521,7 @@ export default function Home() {
     const message = `Hi Cookie Corner! I'd like to place an order.
 
 Name: ${orderDetails.name}
+
 Phone: ${orderDetails.phone}
 
 ${orderDetails.method}: ${orderDetails.date}${
@@ -533,10 +531,13 @@ ${orderDetails.method}: ${orderDetails.date}${
     }
 
 Order:
+
 ${orderLines}
 
 Subtotal: AED ${cartSubtotal}
+
 Delivery fee: AED ${deliveryFee}
+
 Total: AED ${cartTotal}
 
 Notes: ${orderDetails.notes || "None"}`;
@@ -556,9 +557,8 @@ Notes: ${orderDetails.notes || "None"}`;
   };
 
   return (
-    <main
-      className="min-h-screen overflow-hidden bg-[#fffaf7] text-[#332321] selection:bg-[#f5b8c9] selection:text-[#332321]"
-    >
+    <main className="min-h-screen overflow-hidden bg-[#fffaf7] text-[#332321] selection:bg-[#f5b8c9] selection:text-[#332321]">
+
       {/* SUBTLE TEXTURE */}
       <div
         className="pointer-events-none fixed inset-0 z-50 opacity-[0.035] mix-blend-multiply"
@@ -835,6 +835,7 @@ Notes: ${orderDetails.notes || "None"}`;
 
           {/* MINI PRODUCTS */}
           <div className="grid gap-7 md:grid-cols-2">
+
             {/* MINI BROWNIE BITES */}
             <article className="overflow-hidden rounded-[2rem] border border-[#ead2ce] bg-[#fffaf7] shadow-sm transition hover:-translate-y-1">
               <div className="aspect-square overflow-hidden bg-[#e9d1c8]">
@@ -1106,10 +1107,7 @@ Notes: ${orderDetails.notes || "None"}`;
         </p>
       </footer>
 
-      {/* ========================================================= */}
-      {/* FLOATING BAG BUTTON                                      */}
-      {/* ========================================================= */}
-
+      {/* FLOATING BAG BUTTON */}
       <button
         type="button"
         onClick={() => setShowCart(true)}
@@ -1319,9 +1317,9 @@ Notes: ${orderDetails.notes || "None"}`;
   );
 }
 
-/* ============================================================= */
-/* COOKIE CARD                                                    */
-/* ============================================================= */
+/* =============================================================
+   COOKIE CARD
+============================================================= */
 
 function CookieCard({
   cookie,
@@ -1372,9 +1370,9 @@ function CookieCard({
   );
 }
 
-/* ============================================================= */
-/* BOX GROUP                                                      */
-/* ============================================================= */
+/* =============================================================
+   BOX GROUP
+============================================================= */
 
 function BoxGroup({
   title,
@@ -1426,9 +1424,11 @@ function BoxGroup({
                 AED {box.price}
               </span>
             </div>
-         <p className="mt-4 text-lg font-black uppercase tracking-[0.06em] leading-none text-[#bd7186]">
-  {box.size} cookies
-</p>
+
+            <p className="mt-4 text-lg font-black uppercase tracking-[0.06em] leading-none text-[#bd7186]">
+              {box.size} cookies
+            </p>
+
             <p className="mt-5 text-xs font-bold uppercase tracking-[0.1em] underline underline-offset-4">
               Choose flavors →
             </p>
@@ -1439,9 +1439,9 @@ function BoxGroup({
   );
 }
 
-/* ============================================================= */
-/* QUOTE                                                          */
-/* ============================================================= */
+/* =============================================================
+   QUOTE
+============================================================= */
 
 function Quote({
   text,
@@ -1463,9 +1463,9 @@ function Quote({
   );
 }
 
-/* ============================================================= */
-/* BOX MODAL                                                      */
-/* ============================================================= */
+/* =============================================================
+   BOX MODAL
+============================================================= */
 
 function BoxModal({
   selectedBox,
@@ -1589,9 +1589,9 @@ function BoxModal({
   );
 }
 
-/* ============================================================= */
-/* CART DRAWER                                                    */
-/* ============================================================= */
+/* =============================================================
+   CART DRAWER
+============================================================= */
 
 function CartDrawer({
   cart,
@@ -1649,6 +1649,7 @@ function CartDrawer({
   return (
     <div className="fixed inset-0 z-[80] flex justify-end bg-[#4b302d]/30 backdrop-blur-sm">
       <div className="h-full w-full max-w-xl overflow-y-auto bg-[#fffaf7] shadow-2xl">
+
         {/* DRAWER HEADER */}
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#efd7dc] bg-[#fffaf7]/95 px-5 py-5 backdrop-blur-sm">
           <div>
@@ -1775,6 +1776,7 @@ function CartDrawer({
                 </h3>
 
                 <div className="mt-5 space-y-4">
+
                   {/* NAME */}
                   <div>
                     <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
@@ -1820,7 +1822,10 @@ function CartDrawer({
                     <select
                       value={orderDetails.method}
                       onChange={(e) =>
-                        updateDetails("method", e.target.value)
+                        updateDetails(
+                          "method",
+                          e.target.value
+                        )
                       }
                       className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
                     >
