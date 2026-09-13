@@ -837,7 +837,7 @@ Notes: ${orderDetails.notes || "None"}`;
                 <button
                   type="button"
                   onClick={() =>
-                    addExtraToCart("brownies", "Brownies", 100, 1)
+                    addExtraToCart("brownies", "Brownies", 100, 20)
                   }
                   className="rounded-full bg-[#bd7186] px-5 py-3 text-xs font-bold uppercase tracking-[0.14em] text-white transition hover:bg-[#a96075]"
                 >
