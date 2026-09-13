@@ -362,25 +362,44 @@ export default function Home() {
   };
 
   const openBoxBuilder = (
-    box: (typeof boxOptions)[number]
-  ) => {
-    setSelectedBox(box);
+  box: (typeof boxOptions)[number]
+) => {
+  // Cinnamon Roll is coming soon
+  if (box.group === 9) {
+    return;
+  }
 
-    const quantities: Record<string, number> = {};
+  // Kinder boxes are automatically added as a complete box
+  if (box.group === 8) {
+    setCart((current) => [
+      ...current,
+      {
+        id: `box-kinder-${Date.now()}`,
+        name: `${box.label} Kinder Cookie Box`,
+        price: box.price,
+        quantity: 1,
+        details: `Kinder Cookie × ${box.size}`,
+        itemCount: box.size,
+      },
+    ]);
 
-    cookies
-      .filter((cookie) =>
-        box.group === 9
-          ? cookie.name === "Cinnamon Roll Cookie"
-          : cookie.price === box.group
-      )
-      .forEach((cookie) => {
-        quantities[cookie.name] = 0;
-      });
+    showToast(`${box.label} Kinder Cookie Box added to your bag`);
+    return;
+  }
 
-    setBoxQuantities(quantities);
-  };
+  // Classics and Chocolate Hour still use the box builder
+  setSelectedBox(box);
 
+  const quantities: Record<string, number> = {};
+
+  cookies
+    .filter((cookie) => cookie.price === box.group)
+    .forEach((cookie) => {
+      quantities[cookie.name] = 0;
+    });
+
+  setBoxQuantities(quantities);
+};
   const updateBoxQuantity = (
     cookieName: string,
     change: number
@@ -1330,6 +1349,8 @@ function CookieCard({
   index: number;
   addToCart: (cookie: Cookie) => void;
 }) {
+  const comingSoon = cookie.name === "Cinnamon Roll Cookie";
+
   return (
     <article className="group">
       <div className="relative rounded-none border-0 border-b border-[#efd7dc] bg-transparent p-0 pb-7 transition duration-300 group-hover:-translate-y-1">
@@ -1359,18 +1380,24 @@ function CookieCard({
 
           <button
             type="button"
-            onClick={() => addToCart(cookie)}
-            className="mx-auto mt-4 block rounded-full bg-[#bd7186] px-4 py-3 text-xs font-bold uppercase tracking-[0.14em] text-white transition hover:bg-[#a96075]"
+            onClick={() => {
+              if (comingSoon) return;
+              addToCart(cookie);
+            }}
+            disabled={comingSoon}
+            className={`mx-auto mt-4 block rounded-full px-4 py-3 text-xs font-bold uppercase tracking-[0.14em] transition ${
+              comingSoon
+                ? "cursor-not-allowed bg-[#ead9dc] text-[#9a7b75]"
+                : "bg-[#bd7186] text-white hover:bg-[#a96075]"
+            }`}
           >
-            Add to bag +
+            {comingSoon ? "Coming soon!" : "Add to bag +"}
           </button>
         </div>
       </div>
     </article>
   );
-}
-
-/* =============================================================
+}/* =============================================================
    BOX GROUP
 ============================================================= */
 
@@ -1387,6 +1414,9 @@ function BoxGroup({
   onSelect: (box: (typeof boxOptions)[number]) => void;
   accent: number;
 }) {
+  const isKinder = boxes[0]?.group === 8;
+  const isCinnamon = boxes[0]?.group === 9;
+
   return (
     <div>
       <div className="mb-4 flex items-end justify-between border-b-2 border-[#332321] pb-3">
@@ -1407,7 +1437,12 @@ function BoxGroup({
             type="button"
             key={`${box.group}-${box.size}`}
             onClick={() => onSelect(box)}
-            className="rounded-2xl border border-[#efd7dc] bg-white p-4 text-left shadow-sm transition hover:-translate-y-1 hover:border-[#d9a2b0]"
+            disabled={isCinnamon}
+            className={`rounded-2xl border border-[#efd7dc] bg-white p-4 text-left shadow-sm transition ${
+              isCinnamon
+                ? "cursor-not-allowed opacity-70"
+                : "hover:-translate-y-1 hover:border-[#d9a2b0]"
+            }`}
           >
             <div className="flex items-start justify-between gap-2">
               <span className="font-serif text-xl font-bold leading-none">
@@ -1425,12 +1460,16 @@ function BoxGroup({
               </span>
             </div>
 
-            <p className="mt-4 text-lg font-black uppercase tracking-[0.06em] leading-none text-[#bd7186]">
+            <p className="relative -top-1 mt-4 text-xl font-black uppercase leading-none tracking-[0.05em] text-[#bd7186]">
               {box.size} cookies
             </p>
 
             <p className="mt-5 text-xs font-bold uppercase tracking-[0.1em] underline underline-offset-4">
-              Choose flavors →
+              {isCinnamon
+                ? "Coming soon!"
+                : isKinder
+                ? "Add box +"
+                : "Choose flavors →"}
             </p>
           </button>
         ))}
