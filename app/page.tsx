@@ -825,24 +825,19 @@ Notes: ${orderDetails.notes || "None"}`;
 
               <p className="mt-4 max-w-md leading-7 text-[#765852]">
                 Rich, fudgy brownies baked fresh and cut
-                into 20 generous pieces. Perfect for sharing,
+                into generous pieces. Perfect for sharing,
                 gifting, or keeping all to yourself.
               </p>
 
               <div className="mt-6 flex flex-wrap items-center gap-4">
                 <span className="rounded-full bg-[#f8dce3] px-5 py-2 text-sm font-black text-[#a45d72]">
-                  20 pieces · AED 100
+                  large box · AED 100
                 </span>
 
                 <button
                   type="button"
                   onClick={() =>
-                    addExtraToCart(
-                      "brownies",
-                      "Brownies",
-                      100,
-                      20
-                    )
+                    addExtraToCart("brownies", "Brownies", 100, 1)
                   }
                   className="rounded-full bg-[#bd7186] px-5 py-3 text-xs font-bold uppercase tracking-[0.14em] text-white transition hover:bg-[#a96075]"
                 >
