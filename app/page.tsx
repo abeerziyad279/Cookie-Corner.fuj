@@ -26,6 +26,8 @@ type OrderDetails = {
   date: string;
   location: string;
   notes: string;
+  gift: boolean;
+  payment: string;
 };
 
 const cookies: Cookie[] = [
@@ -243,6 +245,8 @@ export default function Home() {
     date: "",
     location: "",
     notes: "",
+    gift: false,
+    payment: "Cash",
   });
 
   const [showWelcomePopup, setShowWelcomePopup] = useState(false);
@@ -362,44 +366,48 @@ export default function Home() {
   };
 
   const openBoxBuilder = (
-  box: (typeof boxOptions)[number]
-) => {
-  // Cinnamon Roll is coming soon
-  if (box.group === 9) {
-    return;
-  }
+    box: (typeof boxOptions)[number]
+  ) => {
+    // Cinnamon Roll is coming soon
+    if (box.group === 9) {
+      return;
+    }
 
-  // Kinder boxes are automatically added as a complete box
-  if (box.group === 8) {
-    setCart((current) => [
-      ...current,
-      {
-        id: `box-kinder-${Date.now()}`,
-        name: `${box.label} Kinder Cookie Box`,
-        price: box.price,
-        quantity: 1,
-        details: `Kinder Cookie × ${box.size}`,
-        itemCount: box.size,
-      },
-    ]);
+    // Kinder boxes are automatically added as a complete box
+    if (box.group === 8) {
+      setCart((current) => [
+        ...current,
+        {
+          id: `box-kinder-${Date.now()}`,
+          name: `${box.label} Kinder Cookie Box`,
+          price: box.price,
+          quantity: 1,
+          details: `Kinder Cookie × ${box.size}`,
+          itemCount: box.size,
+        },
+      ]);
 
-    showToast(`${box.label} Kinder Cookie Box added to your bag`);
-    return;
-  }
+      showToast(
+        `${box.label} Kinder Cookie Box added to your bag`
+      );
 
-  // Classics and Chocolate Hour still use the box builder
-  setSelectedBox(box);
+      return;
+    }
 
-  const quantities: Record<string, number> = {};
+    // Classics and Chocolate Hour still use the box builder
+    setSelectedBox(box);
 
-  cookies
-    .filter((cookie) => cookie.price === box.group)
-    .forEach((cookie) => {
-      quantities[cookie.name] = 0;
-    });
+    const quantities: Record<string, number> = {};
 
-  setBoxQuantities(quantities);
-};
+    cookies
+      .filter((cookie) => cookie.price === box.group)
+      .forEach((cookie) => {
+        quantities[cookie.name] = 0;
+      });
+
+    setBoxQuantities(quantities);
+  };
+
   const updateBoxQuantity = (
     cookieName: string,
     change: number
@@ -457,6 +465,7 @@ export default function Home() {
     ]);
 
     showToast(`${selectedBox.label} added to your bag`);
+
     setSelectedBox(null);
   };
 
@@ -484,7 +493,10 @@ export default function Home() {
         : 10
       : 0;
 
-  const cartTotal = cartSubtotal + deliveryFee;
+  const giftFee = orderDetails.gift ? 5 : 0;
+
+  const cartTotal =
+    cartSubtotal + deliveryFee + giftFee;
 
   const saveCustomerDetails = () => {
     if (
@@ -549,13 +561,25 @@ ${orderDetails.method}: ${orderDetails.date}${
         : ""
     }
 
+Payment: ${orderDetails.payment}
+
+Gift: ${
+      orderDetails.gift
+        ? "Yes — Candle & a Note (+ AED 5)"
+        : "No"
+    }
+
 Order:
 
 ${orderLines}
 
 Subtotal: AED ${cartSubtotal}
 
-Delivery fee: AED ${deliveryFee}
+${
+  orderDetails.gift
+    ? "Gift fee: AED 5\n"
+    : ""
+}Delivery fee: AED ${deliveryFee}
 
 Total: AED ${cartTotal}
 
@@ -837,7 +861,12 @@ Notes: ${orderDetails.notes || "None"}`;
                 <button
                   type="button"
                   onClick={() =>
-                    addExtraToCart("brownies", "Brownies", 100, 20)
+                    addExtraToCart(
+                      "brownies",
+                      "Brownies",
+                      100,
+                      20
+                    )
                   }
                   className="rounded-full bg-[#bd7186] px-5 py-3 text-xs font-bold uppercase tracking-[0.14em] text-white transition hover:bg-[#a96075]"
                 >
@@ -1203,6 +1232,7 @@ Notes: ${orderDetails.notes || "None"}`;
           totalCookies={totalCookies}
           cartSubtotal={cartSubtotal}
           deliveryFee={deliveryFee}
+          giftFee={giftFee}
           orderDates={orderDates}
           changeQuantity={changeQuantity}
           orderDetails={orderDetails}
@@ -1392,7 +1422,9 @@ function CookieCard({
       </div>
     </article>
   );
-}/* =============================================================
+}
+
+/* =============================================================
    BOX GROUP
 ============================================================= */
 
@@ -1632,6 +1664,7 @@ function CartDrawer({
   cartTotal,
   cartSubtotal,
   deliveryFee,
+  giftFee,
   orderDates,
   totalItems,
   totalCookies,
@@ -1645,6 +1678,7 @@ function CartDrawer({
   cartTotal: number;
   cartSubtotal: number;
   deliveryFee: number;
+  giftFee: number;
   orderDates: {
     value: string;
     label: string;
@@ -1664,7 +1698,7 @@ function CartDrawer({
 }) {
   const updateDetails = (
     field: keyof OrderDetails,
-    value: string
+    value: string | boolean
   ) => {
     setOrderDetails({
       ...orderDetails,
@@ -1677,8 +1711,13 @@ function CartDrawer({
     orderDetails.name.trim() !== "" &&
     orderDetails.phone.trim() !== "" &&
     orderDetails.date !== "" &&
+    orderDetails.payment !== "" &&
     (orderDetails.method !== "Delivery" ||
       orderDetails.location.trim() !== "");
+
+  const outsideFujairah =
+    orderDetails.method === "Delivery" &&
+    orderDetails.area === "Outside Fujairah";
 
   return (
     <div className="fixed inset-0 z-[80] flex justify-end bg-[#4b302d]/30 backdrop-blur-sm">
@@ -1821,7 +1860,10 @@ function CartDrawer({
                       type="text"
                       value={orderDetails.name}
                       onChange={(e) =>
-                        updateDetails("name", e.target.value)
+                        updateDetails(
+                          "name",
+                          e.target.value
+                        )
                       }
                       placeholder="Your name"
                       autoComplete="name"
@@ -1839,7 +1881,10 @@ function CartDrawer({
                       type="tel"
                       value={orderDetails.phone}
                       onChange={(e) =>
-                        updateDetails("phone", e.target.value)
+                        updateDetails(
+                          "phone",
+                          e.target.value
+                        )
                       }
                       placeholder="05XXXXXXXX"
                       autoComplete="tel"
@@ -1855,12 +1900,23 @@ function CartDrawer({
 
                     <select
                       value={orderDetails.method}
-                      onChange={(e) =>
-                        updateDetails(
-                          "method",
-                          e.target.value
-                        )
-                      }
+                      onChange={(e) => {
+                        const method = e.target.value;
+
+                        setOrderDetails({
+                          ...orderDetails,
+                          method,
+                          payment:
+                            method === "Delivery" &&
+                            orderDetails.area ===
+                              "Outside Fujairah"
+                              ? "Bank Transfer"
+                              : orderDetails.payment ===
+                                "Bank Transfer"
+                              ? "Cash"
+                              : orderDetails.payment,
+                        });
+                      }}
                       className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
                     >
                       <option value="Pickup">
@@ -1883,12 +1939,22 @@ function CartDrawer({
 
                         <select
                           value={orderDetails.area}
-                          onChange={(e) =>
-                            updateDetails(
-                              "area",
-                              e.target.value
-                            )
-                          }
+                          onChange={(e) => {
+                            const area = e.target.value;
+
+                            setOrderDetails({
+                              ...orderDetails,
+                              area,
+                              payment:
+                                area ===
+                                "Outside Fujairah"
+                                  ? "Bank Transfer"
+                                  : orderDetails.payment ===
+                                    "Bank Transfer"
+                                  ? "Cash"
+                                  : orderDetails.payment,
+                            });
+                          }}
                           className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
                         >
                           <option value="Within Fujairah">
@@ -1922,6 +1988,65 @@ function CartDrawer({
                       </div>
                     </>
                   )}
+
+                  {/* PAYMENT METHOD */}
+                  <div>
+                    <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
+                      Payment method
+                    </label>
+
+                    <select
+                      value={orderDetails.payment}
+                      onChange={(e) =>
+                        updateDetails(
+                          "payment",
+                          e.target.value
+                        )
+                      }
+                      className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
+                    >
+                      {!outsideFujairah && (
+                        <option value="Cash">
+                          Cash
+                        </option>
+                      )}
+
+                      <option value="Card">
+                        Card
+                      </option>
+
+                      <option value="Bank Transfer">
+                        Bank Transfer
+                      </option>
+                    </select>
+                  </div>
+
+                  {/* GIFT */}
+                  <div className="rounded-2xl border-2 border-[#efd7dc] bg-[#fff5f6] p-4">
+                    <label className="flex cursor-pointer items-start gap-3">
+                      <input
+                        type="checkbox"
+                        checked={orderDetails.gift}
+                        onChange={(e) =>
+                          updateDetails(
+                            "gift",
+                            e.target.checked
+                          )
+                        }
+                        className="mt-1 h-4 w-4 accent-[#bd7186]"
+                      />
+
+                      <span>
+                        <span className="block text-sm font-black text-[#563b35]">
+                          🎁 Make it a gift + AED 5
+                        </span>
+
+                        <span className="mt-1 block text-xs text-[#765852]">
+                          Candle & a Note
+                        </span>
+                      </span>
+                    </label>
+                  </div>
 
                   {/* DATE */}
                   <div>
@@ -1987,6 +2112,18 @@ function CartDrawer({
                     AED {cartSubtotal}
                   </span>
                 </div>
+
+                {orderDetails.gift && (
+                  <div className="flex justify-between">
+                    <span className="text-[#765852]">
+                      Gift
+                    </span>
+
+                    <span className="font-bold">
+                      AED {giftFee}
+                    </span>
+                  </div>
+                )}
 
                 <div className="flex justify-between">
                   <span className="text-[#765852]">
