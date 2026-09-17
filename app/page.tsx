@@ -1843,263 +1843,282 @@ const [showOrderDetails, setShowOrderDetails] = useState(false);
                 </div>
               )}
 
-              {/* ORDER DETAILS */}
-              <div className="mt-8 border-y-2 border-[#332321] py-5">
-                <h3 className="font-serif text-2xl font-black">
-                  Order details
-                </h3>
-
-                <div className="mt-5 space-y-4">
-
-                  {/* NAME */}
+                            {/* ORDER DETAILS */}
+              <div className="mt-8 border-y-2 border-[#332321]">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setShowOrderDetails((current) => !current)
+                  }
+                  className="flex w-full items-center justify-between py-5 text-left"
+                >
                   <div>
-                    <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
-                      Name
-                    </label>
+                    <h3 className="font-serif text-2xl font-black">
+                      Order details
+                    </h3>
 
-                    <input
-                      type="text"
-                      value={orderDetails.name}
-                      onChange={(e) =>
-                        updateDetails(
-                          "name",
-                          e.target.value
-                        )
-                      }
-                      placeholder="Your name"
-                      autoComplete="name"
-                      className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
-                    />
+                    {!showOrderDetails && (
+                      <p className="mt-1 text-xs text-[#765852]">
+                        Tap to add or view your order information
+                      </p>
+                    )}
                   </div>
 
-                  {/* PHONE */}
-                  <div>
-                    <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
-                      Phone
-                    </label>
+                  <span className="text-2xl font-black text-[#bd7186]">
+                    {showOrderDetails ? "−" : "+"}
+                  </span>
+                </button>
 
-                    <input
-                      type="tel"
-                      value={orderDetails.phone}
-                      onChange={(e) =>
-                        updateDetails(
-                          "phone",
-                          e.target.value
-                        )
-                      }
-                      placeholder="05XXXXXXXX"
-                      autoComplete="tel"
-                      className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
-                    />
-                  </div>
+                {showOrderDetails && (
+                  <div className="pb-5">
+                    <div className="space-y-4">
 
-                  {/* ORDER TYPE */}
-                  <div>
-                    <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
-                      Order type
-                    </label>
-
-                    <select
-                      value={orderDetails.method}
-                      onChange={(e) => {
-                        const method = e.target.value;
-
-                        setOrderDetails({
-                          ...orderDetails,
-                          method,
-                          payment:
-                            method === "Delivery" &&
-                            orderDetails.area ===
-                              "Outside Fujairah"
-                              ? "Bank Transfer"
-                              : orderDetails.payment ===
-                                "Bank Transfer"
-                              ? "Cash"
-                              : orderDetails.payment,
-                        });
-                      }}
-                      className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
-                    >
-                      <option value="Pickup">
-                        Pickup
-                      </option>
-
-                      <option value="Delivery">
-                        Delivery
-                      </option>
-                    </select>
-                  </div>
-
-                  {/* DELIVERY DETAILS */}
-                  {orderDetails.method === "Delivery" && (
-                    <>
+                      {/* NAME */}
                       <div>
                         <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
-                          Area
+                          Name
+                        </label>
+
+                        <input
+                          type="text"
+                          value={orderDetails.name}
+                          onChange={(e) =>
+                            updateDetails("name", e.target.value)
+                          }
+                          placeholder="Your name"
+                          autoComplete="name"
+                          className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
+                        />
+                      </div>
+
+                      {/* PHONE */}
+                      <div>
+                        <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
+                          Phone
+                        </label>
+
+                        <input
+                          type="tel"
+                          value={orderDetails.phone}
+                          onChange={(e) =>
+                            updateDetails("phone", e.target.value)
+                          }
+                          placeholder="05XXXXXXXX"
+                          autoComplete="tel"
+                          className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
+                        />
+                      </div>
+
+                      {/* ORDER TYPE */}
+                      <div>
+                        <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
+                          Order type
                         </label>
 
                         <select
-                          value={orderDetails.area}
+                          value={orderDetails.method}
                           onChange={(e) => {
-                            const area = e.target.value;
+                            const method = e.target.value;
 
                             setOrderDetails({
                               ...orderDetails,
-                              area,
+                              method,
                               payment:
-                                area ===
-                                "Outside Fujairah"
+                                method === "Delivery" &&
+                                orderDetails.area === "Outside Fujairah"
                                   ? "Bank Transfer"
-                                  : orderDetails.payment ===
-                                    "Bank Transfer"
+                                  : orderDetails.payment === "Bank Transfer"
                                   ? "Cash"
                                   : orderDetails.payment,
                             });
                           }}
                           className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
                         >
-                          <option value="Within Fujairah">
-                            Within Fujairah — AED 10
+                          <option value="Pickup">
+                            Pickup
                           </option>
 
-                          <option value="Outside Fujairah">
-                            Outside Fujairah — AED 25
+                          <option value="Delivery">
+                            Delivery
                           </option>
                         </select>
                       </div>
 
+                      {/* DELIVERY DETAILS */}
+                      {orderDetails.method === "Delivery" && (
+                        <>
+                          <div>
+                            <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
+                              Area
+                            </label>
+
+                            <select
+                              value={orderDetails.area}
+                              onChange={(e) => {
+                                const area = e.target.value;
+
+                                setOrderDetails({
+                                  ...orderDetails,
+                                  area,
+                                  payment:
+                                    area === "Outside Fujairah"
+                                      ? "Bank Transfer"
+                                      : orderDetails.payment === "Bank Transfer"
+                                      ? "Cash"
+                                      : orderDetails.payment,
+                                });
+                              }}
+                              className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
+                            >
+                              <option value="Within Fujairah">
+                                Within Fujairah — AED 10
+                              </option>
+
+                              <option value="Outside Fujairah">
+                                Outside Fujairah — AED 25
+                              </option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
+                              Location
+                            </label>
+
+                            <input
+                              type="text"
+                              value={orderDetails.location}
+                              onChange={(e) =>
+                                updateDetails(
+                                  "location",
+                                  e.target.value
+                                )
+                              }
+                              placeholder="Area / location"
+                              autoComplete="street-address"
+                              className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
+                            />
+                          </div>
+                        </>
+                      )}
+
+                      {/* PAYMENT METHOD */}
                       <div>
                         <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
-                          Location
+                          Payment method
                         </label>
 
-                        <input
-                          type="text"
-                          value={orderDetails.location}
+                        <select
+                          value={orderDetails.payment}
                           onChange={(e) =>
                             updateDetails(
-                              "location",
+                              "payment",
                               e.target.value
                             )
                           }
-                          placeholder="Area / location"
-                          autoComplete="street-address"
                           className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
+                        >
+                          {!outsideFujairah && (
+                            <option value="Cash">
+                              Cash
+                            </option>
+                          )}
+
+                          {!outsideFujairah && (
+                            <option value="Card">
+                              Card
+                            </option>
+                          )}
+
+                          {outsideFujairah && (
+                            <option value="Bank Transfer">
+                              Bank Transfer
+                            </option>
+                          )}
+                        </select>
+                      </div>
+
+                      {/* GIFT */}
+                      <div className="rounded-2xl border-2 border-[#efd7dc] bg-[#fff5f6] p-4">
+                        <label className="flex cursor-pointer items-start gap-3">
+                          <input
+                            type="checkbox"
+                            checked={orderDetails.gift}
+                            onChange={(e) =>
+                              updateDetails(
+                                "gift",
+                                e.target.checked
+                              )
+                            }
+                            className="mt-1 h-4 w-4 accent-[#bd7186]"
+                          />
+
+                          <span>
+                            <span className="block text-sm font-black text-[#563b35]">
+                              🎁 Make it a gift + AED 5
+                            </span>
+
+                            <span className="mt-1 block text-xs text-[#765852]">
+                              Candle & a Note
+                            </span>
+                          </span>
+                        </label>
+                      </div>
+
+                      {/* DATE */}
+                      <div>
+                        <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
+                          Order date
+                        </label>
+
+                        <select
+                          value={orderDetails.date}
+                          onChange={(e) =>
+                            updateDetails(
+                              "date",
+                              e.target.value
+                            )
+                          }
+                          className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
+                        >
+                          <option value="">
+                            Select a date
+                          </option>
+
+                          {orderDates.map((date) => (
+                            <option
+                              key={date.value}
+                              value={date.value}
+                            >
+                              {date.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* NOTES */}
+                      <div>
+                        <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
+                          Notes
+                        </label>
+
+                        <textarea
+                          value={orderDetails.notes}
+                          onChange={(e) =>
+                            updateDetails(
+                              "notes",
+                              e.target.value
+                            )
+                          }
+                          placeholder="Any special requests?"
+                          rows={3}
+                          className="w-full resize-none rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
                         />
                       </div>
-                    </>
-                  )}
 
-                  {/* PAYMENT METHOD */}
-                  <div>
-                    <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
-                      Payment method
-                    </label>
-
-                    <select
-                      value={orderDetails.payment}
-                      onChange={(e) =>
-                        updateDetails(
-                          "payment",
-                          e.target.value
-                        )
-                      }
-                      className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
-                    >
-                      {!outsideFujairah && (
-                        <option value="Cash">
-                          Cash
-                        </option>
-                      )}
-
-                      <option value="Card">
-                        Card
-                      </option>
-
-                      <option value="Bank Transfer">
-                        Bank Transfer
-                      </option>
-                    </select>
+                    </div>
                   </div>
-
-                  {/* GIFT */}
-                  <div className="rounded-2xl border-2 border-[#efd7dc] bg-[#fff5f6] p-4">
-                    <label className="flex cursor-pointer items-start gap-3">
-                      <input
-                        type="checkbox"
-                        checked={orderDetails.gift}
-                        onChange={(e) =>
-                          updateDetails(
-                            "gift",
-                            e.target.checked
-                          )
-                        }
-                        className="mt-1 h-4 w-4 accent-[#bd7186]"
-                      />
-
-                      <span>
-                        <span className="block text-sm font-black text-[#563b35]">
-                          🎁 Make it a gift + AED 5
-                        </span>
-
-                        <span className="mt-1 block text-xs text-[#765852]">
-                          Candle & a Note
-                        </span>
-                      </span>
-                    </label>
-                  </div>
-
-                  {/* DATE */}
-                  <div>
-                    <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
-                      Order date
-                    </label>
-
-                    <select
-                      value={orderDetails.date}
-                      onChange={(e) =>
-                        updateDetails(
-                          "date",
-                          e.target.value
-                        )
-                      }
-                      className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
-                    >
-                      <option value="">
-                        Select a date
-                      </option>
-
-                      {orderDates.map((date) => (
-                        <option
-                          key={date.value}
-                          value={date.value}
-                        >
-                          {date.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* NOTES */}
-                  <div>
-                    <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
-                      Notes
-                    </label>
-
-                    <textarea
-                      value={orderDetails.notes}
-                      onChange={(e) =>
-                        updateDetails(
-                          "notes",
-                          e.target.value
-                        )
-                      }
-                      placeholder="Any special requests?"
-                      rows={3}
-                      className="w-full resize-none rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
-                    />
-                  </div>
-                </div>
+                )}
               </div>
 
               {/* TOTALS */}
