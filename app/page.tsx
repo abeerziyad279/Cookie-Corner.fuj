@@ -636,14 +636,9 @@ Total: AED ${cartTotal}
 Notes: ${orderDetails.notes || "None"}`;
 
     const whatsappUrl = `https://wa.me/971507576175?text=${encodeURIComponent(
-      message
-    )}`;
-
-    window.open(
-      whatsappUrl,
-      "_blank",
-      "noopener,noreferrer"
-    );
+      message)}`;
+      window.location.href = whatsappUrl;
+      ;
 
     setShowCart(false);
     setOrderSent(true);
