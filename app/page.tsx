@@ -497,29 +497,49 @@ export default function Home() {
 
   const cartTotal =
     cartSubtotal + deliveryFee + giftFee;
+const saveCustomerDetails = async () => {
+  if (
+    !orderDetails.name.trim() ||
+    !orderDetails.phone.trim() ||
+    !orderDetails.location.trim()
+  ) {
+    return;
+  }
 
-  const saveCustomerDetails = () => {
-    if (
-      !orderDetails.name.trim() ||
-      !orderDetails.phone.trim() ||
-      !orderDetails.location.trim()
-    ) {
-      return;
-    }
-
-    localStorage.setItem(
-      "cookieCornerCustomer",
-      JSON.stringify({
-        name: orderDetails.name.trim(),
-        phone: orderDetails.phone.trim(),
-        location: orderDetails.location.trim(),
-      })
-    );
-
-    setShowWelcomePopup(false);
+  const customerData = {
+    name: orderDetails.name.trim(),
+    phone: orderDetails.phone.trim(),
+    location: orderDetails.location.trim(),
   };
 
-  const placeOrder = () => {
+  // Save in browser
+  localStorage.setItem(
+    "cookieCornerCustomer",
+    JSON.stringify(customerData)
+  );
+
+  // Save in Supabase
+  try {
+    const response = await fetch("/api/customer", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(customerData),
+    });
+
+   if (!response.ok) {
+  const errorText = await response.text();
+  console.error("Customer API error:", response.status, errorText);
+}
+  } catch (error) {
+    console.error("Customer database error:", error);
+  }
+
+  setShowWelcomePopup(false);
+};
+
+const placeOrder = async () => {    
     if (
       !orderDetails.name.trim() ||
       !orderDetails.phone.trim() ||
@@ -539,6 +559,36 @@ export default function Home() {
         location: orderDetails.location.trim(),
       })
     );
+        try {
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: orderDetails.name.trim(),
+          phone: orderDetails.phone.trim(),
+          location: orderDetails.location.trim(),
+          method: orderDetails.method,
+          area: orderDetails.area,
+          date: orderDetails.date,
+          payment: orderDetails.payment,
+          gift: orderDetails.gift,
+          notes: orderDetails.notes,
+          subtotal: cartSubtotal,
+          giftFee,
+          deliveryFee,
+          total: cartTotal,
+          items: cart,
+        }),
+      });
+
+      if (!response.ok) {
+        console.error("Could not save order to database.");
+      }
+    } catch (error) {
+      console.error("Database error:", error);
+    }
 
     const orderLines = cart
       .map(
@@ -1243,120 +1293,94 @@ Notes: ${orderDetails.notes || "None"}`;
       )}
 
       {/* WELCOME POPUP */}
-      {showWelcomePopup && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-[#4b302d]/40 p-5 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-[2rem] border-4 border-[#f2cbd4] bg-[#fffaf7] p-7 shadow-2xl">
-            <div className="text-center">
-              <div className="flex justify-center">
-                <img
-                  src="/images/logo.png"
-                  alt="Cookie Corner"
-                  className="h-16 w-16 object-contain"
-                />
-              </div>
+{showWelcomePopup && (
+  <div className="fixed inset-0 z-[120] flex items-center justify-center bg-[#332321]/25 p-5 backdrop-blur-[2px]">
+    <div className="w-full max-w-sm rounded-2xl border border-[#efd7dc] bg-[#fffaf7] p-6 shadow-xl">
 
-              <p className="mt-3 text-xs font-black uppercase tracking-[0.18em] text-[#bd7186]">
-                welcome to
-              </p>
+      <div className="text-center">
+        <img
+          src="/images/logo.png"
+          alt="Cookie Corner"
+          className="mx-auto h-14 w-14 object-contain"
+        />
 
-              <h2 className="mt-1 font-serif text-4xl font-black text-[#563b35]">
-                Cookie Corner
-              </h2>
+        <h2 className="mt-4 font-serif text-2xl font-black text-[#563b35]">
+          welcome ♡
+        </h2>
 
-              <p className="mt-3 text-sm leading-6 text-[#765852]">
-                Save your details for a quicker order next time ♡
-              </p>
-            </div>
+        <p className="mt-2 text-sm leading-5 text-[#765852]">
+          Save your details so ordering is quicker next time.
+        </p>
+      </div>
 
-            <div className="mt-7 space-y-4">
-              <div>
-                <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
-                  Name
-                </label>
+      <div className="mt-5 space-y-3">
+        <input
+          type="text"
+          value={orderDetails.name}
+          onChange={(e) =>
+            setOrderDetails({
+              ...orderDetails,
+              name: e.target.value,
+            })
+          }
+          placeholder="Name"
+          autoComplete="name"
+          className="w-full rounded-xl border border-[#dec3c2] bg-white px-4 py-3 text-sm text-[#563b35] outline-none transition focus:border-[#bd7186]"
+        />
 
-                <input
-                  type="text"
-                  value={orderDetails.name}
-                  onChange={(e) =>
-                    setOrderDetails({
-                      ...orderDetails,
-                      name: e.target.value,
-                    })
-                  }
-                  placeholder="Your name"
-                  autoComplete="name"
-                  className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
-                />
-              </div>
+        <input
+          type="tel"
+          value={orderDetails.phone}
+          onChange={(e) =>
+            setOrderDetails({
+              ...orderDetails,
+              phone: e.target.value,
+            })
+          }
+          placeholder="Phone number"
+          autoComplete="tel"
+          className="w-full rounded-xl border border-[#dec3c2] bg-white px-4 py-3 text-sm text-[#563b35] outline-none transition focus:border-[#bd7186]"
+        />
 
-              <div>
-                <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
-                  Phone
-                </label>
+        <input
+          type="text"
+          value={orderDetails.location}
+          onChange={(e) =>
+            setOrderDetails({
+              ...orderDetails,
+              location: e.target.value,
+            })
+          }
+          placeholder="Area / location"
+          autoComplete="street-address"
+          className="w-full rounded-xl border border-[#dec3c2] bg-white px-4 py-3 text-sm text-[#563b35] outline-none transition focus:border-[#bd7186]"
+        />
+      </div>
 
-                <input
-                  type="tel"
-                  value={orderDetails.phone}
-                  onChange={(e) =>
-                    setOrderDetails({
-                      ...orderDetails,
-                      phone: e.target.value,
-                    })
-                  }
-                  placeholder="05XXXXXXXX"
-                  autoComplete="tel"
-                  className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
-                />
-              </div>
+      <button
+        type="button"
+        onClick={saveCustomerDetails}
+        disabled={
+          !orderDetails.name.trim() ||
+          !orderDetails.phone.trim() ||
+          !orderDetails.location.trim()
+        }
+        className="mt-5 w-full rounded-full bg-[#bd7186] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#a96075] disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        Save details ♡
+      </button>
 
-              <div>
-                <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em]">
-                  Area / Location
-                </label>
-
-                <input
-                  type="text"
-                  value={orderDetails.location}
-                  onChange={(e) =>
-                    setOrderDetails({
-                      ...orderDetails,
-                      location: e.target.value,
-                    })
-                  }
-                  placeholder="Your area / location"
-                  autoComplete="street-address"
-                  className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
-                />
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={saveCustomerDetails}
-              disabled={
-                !orderDetails.name.trim() ||
-                !orderDetails.phone.trim() ||
-                !orderDetails.location.trim()
-              }
-              className="mt-6 w-full rounded-full bg-[#bd7186] px-5 py-4 text-sm font-bold uppercase tracking-[0.12em] text-white transition hover:bg-[#a96075] disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              Save my details ♡
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setShowWelcomePopup(false)}
-              className="mt-3 w-full py-2 text-xs font-bold uppercase tracking-[0.12em] text-[#765852] transition hover:text-[#bd7186]"
-            >
-              Maybe later
-            </button>
-
-            <p className="mt-3 text-center text-[11px] leading-4 text-[#9a7b75]">
-              Your details stay saved on this device for faster ordering.
-            </p>
-          </div>
-        </div>
-      )}
+      <button
+        type="button"
+        onClick={() => setShowWelcomePopup(false)}
+        className="mt-2 w-full py-2 text-xs font-medium text-[#9a7b75] transition hover:text-[#bd7186]"
+      >
+        maybe later
+      </button>
+    </div>
+  </div>
+)}
+    
     </main>
   );
 }
