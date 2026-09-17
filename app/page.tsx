@@ -1705,6 +1705,7 @@ function CartDrawer({
       [field]: value,
     });
   };
+const [showOrderDetails, setShowOrderDetails] = useState(false);
 
   const readyToOrder =
     totalCookies >= 4 &&
