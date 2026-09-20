@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState } from "react";
 
 type Cookie = {
@@ -314,7 +313,108 @@ export default function Home() {
 
     showToast(`${cookie.name} added to your bag`);
   };
+const enableNotifications = async () => {
+  try {
+    if (!("Notification" in window)) {
+      alert("Your browser does not support notifications.");
+      return;
+    }
 
+    if (!("serviceWorker" in navigator)) {
+      alert("Your browser does not support notifications.");
+      return;
+    }
+
+    const permission = await Notification.requestPermission();
+
+    if (permission !== "granted") {
+      alert("Notifications were not allowed.");
+      return;
+    }
+
+    const registration = await navigator.serviceWorker.register(
+      "/push-sw.js"
+    );
+
+    await navigator.serviceWorker.ready;
+
+    const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+
+    if (!publicKey) {
+      alert("Notification setup is missing.");
+      console.error(
+        "NEXT_PUBLIC_VAPID_PUBLIC_KEY is missing."
+      );
+      return;
+    }
+
+    const padding = "=".repeat(
+      (4 - (publicKey.length % 4)) % 4
+    );
+
+    const base64 = (publicKey + padding)
+      .replace(/-/g, "+")
+      .replace(/_/g, "/");
+
+    const rawData = window.atob(base64);
+
+    const applicationServerKey = Uint8Array.from(
+      rawData,
+      (char) => char.charCodeAt(0)
+    );
+
+    const existingSubscription =
+      await registration.pushManager.getSubscription();
+
+    if (existingSubscription) {
+      await existingSubscription.unsubscribe();
+    }
+
+    const subscription =
+      await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey,
+      });
+
+    const response = await fetch(
+      "/api/notifications/subscribe",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          subscription,
+          subscriberType: "customer",
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+
+      console.error(
+        "Subscription API error:",
+        response.status,
+        errorText
+      );
+
+      alert("Could not save notification settings.");
+      return;
+    }
+
+    alert("Notifications are on 🍪♡");
+  } catch (error) {
+    console.error(
+      "Notification setup error:",
+      error
+    );
+
+    alert(
+      "Something went wrong turning on notifications. Check the browser console."
+    );
+  }
+};
   const addExtraToCart = (
     id: string,
     name: string,
@@ -1291,7 +1391,6 @@ Notes: ${orderDetails.notes || "None"}`;
 {showWelcomePopup && (
   <div className="fixed inset-0 z-[120] flex items-center justify-center bg-[#332321]/25 p-5 backdrop-blur-[2px]">
     <div className="w-full max-w-sm rounded-2xl border border-[#efd7dc] bg-[#fffaf7] p-6 shadow-xl">
-
       <div className="text-center">
         <img
           src="/images/logo.png"
@@ -1363,6 +1462,14 @@ Notes: ${orderDetails.notes || "None"}`;
         className="mt-5 w-full rounded-full bg-[#bd7186] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#a96075] disabled:cursor-not-allowed disabled:opacity-40"
       >
         Save details ♡
+      </button>
+
+      <button
+        type="button"
+        onClick={enableNotifications}
+        className="mt-3 w-full rounded-full border border-[#bd7186] px-5 py-3 text-sm font-bold text-[#bd7186] transition hover:bg-[#fdf0f3]"
+      >
+        🔔 Turn on notifications
       </button>
 
       <button

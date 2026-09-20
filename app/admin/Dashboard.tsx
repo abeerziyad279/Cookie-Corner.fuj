@@ -48,16 +48,178 @@ export default function AdminPage() {
   const [error, setError] = useState("");
   const [openOrder, setOpenOrder] = useState<string | null>(null);
 
+  const [notificationTitle, setNotificationTitle] = useState("");
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const [sendingNotification, setSendingNotification] = useState(false);
+
+  const sendCustomNotification = async () => {
+    if (
+      !notificationTitle.trim() ||
+      !notificationMessage.trim()
+    ) {
+      alert("Please enter a title and message.");
+      return;
+    }
+
+    try {
+      setSendingNotification(true);
+
+      const response = await fetch(
+        "/api/notifications/send",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            title: notificationTitle.trim(),
+            message: notificationMessage.trim(),
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(
+          data.error ||
+            "Could not send notification."
+        );
+        return;
+      }
+
+      alert(
+        `Notification sent to ${data.sent} device(s).`
+      );
+
+      setNotificationTitle("");
+      setNotificationMessage("");
+    } catch (error) {
+      console.error(
+        "Custom notification error:",
+        error
+      );
+      alert("Could not send notification.");
+    } finally {
+      setSendingNotification(false);
+    }
+  };
+
+  const enableAdminNotifications = async () => {
+    try {
+      if (!("Notification" in window)) {
+        alert(
+          "Your browser does not support notifications."
+        );
+        return;
+      }
+
+      if (!("serviceWorker" in navigator)) {
+        alert(
+          "Your browser does not support notifications."
+        );
+        return;
+      }
+
+      const permission =
+        await Notification.requestPermission();
+
+      if (permission !== "granted") {
+        alert("Notifications were not allowed.");
+        return;
+      }
+
+      const registration =
+        await navigator.serviceWorker.register(
+          "/push-sw.js"
+        );
+
+      await navigator.serviceWorker.ready;
+
+      const publicKey =
+        process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+
+      if (!publicKey) {
+        alert("Notification setup is missing.");
+        return;
+      }
+
+      const padding = "=".repeat(
+        (4 - (publicKey.length % 4)) % 4
+      );
+
+      const base64 = (publicKey + padding)
+        .replace(/-/g, "+")
+        .replace(/_/g, "/");
+
+      const rawData = window.atob(base64);
+
+      const applicationServerKey =
+        Uint8Array.from(
+          rawData,
+          (char) => char.charCodeAt(0)
+        );
+
+      const existingSubscription =
+        await registration.pushManager.getSubscription();
+
+      if (existingSubscription) {
+        await existingSubscription.unsubscribe();
+      }
+
+      const subscription =
+        await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey,
+        });
+
+      const response = await fetch(
+        "/api/notifications/subscribe",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            subscription,
+            subscriberType: "admin",
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        alert(
+          "Could not save notification subscription."
+        );
+        return;
+      }
+
+      alert("Admin notifications are on 🍪♡");
+    } catch (error) {
+      console.error(
+        "Admin notification setup error:",
+        error
+      );
+      alert(
+        "Something went wrong enabling notifications."
+      );
+    }
+  };
+
   useEffect(() => {
     const loadDashboard = async () => {
       try {
-        const [customersResponse, ordersResponse] = await Promise.all([
+        const [
+          customersResponse,
+          ordersResponse,
+        ] = await Promise.all([
           fetch("/api/admin/customers"),
           fetch("/api/admin/order-history"),
         ]);
 
         if (!customersResponse.ok) {
-          const errorText = await customersResponse.text();
+          const errorText =
+            await customersResponse.text();
 
           console.error(
             "Admin customers API error:",
@@ -65,11 +227,14 @@ export default function AdminPage() {
             errorText
           );
 
-          throw new Error("Could not load customers.");
+          throw new Error(
+            "Could not load customers."
+          );
         }
 
         if (!ordersResponse.ok) {
-          const errorText = await ordersResponse.text();
+          const errorText =
+            await ordersResponse.text();
 
           console.error(
             "Admin orders API error:",
@@ -77,14 +242,24 @@ export default function AdminPage() {
             errorText
           );
 
-          throw new Error("Could not load orders.");
+          throw new Error(
+            "Could not load orders."
+          );
         }
 
-        const customersData = await customersResponse.json();
-        const ordersData = await ordersResponse.json();
+        const customersData =
+          await customersResponse.json();
 
-        setCustomers(customersData.customers || []);
-        setOrders(ordersData.orders || []);
+        const ordersData =
+          await ordersResponse.json();
+
+        setCustomers(
+          customersData.customers || []
+        );
+
+        setOrders(
+          ordersData.orders || []
+        );
       } catch (error) {
         console.error(error);
         setError("Could not load dashboard.");
@@ -106,16 +281,26 @@ export default function AdminPage() {
   };
 
   const printOrder = (order: Order) => {
-    const printWindow = window.open("", "_blank", "width=800,height=900");
+    const printWindow = window.open(
+      "",
+      "_blank",
+      "width=800,height=900"
+    );
 
     if (!printWindow) {
-      alert("Please allow pop-ups to print the order.");
+      alert(
+        "Please allow pop-ups to print the order."
+      );
       return;
     }
 
     const orderDate = order.order_date
-      ? new Date(order.order_date).toLocaleDateString()
-      : new Date(order.created_at).toLocaleDateString();
+      ? new Date(
+          order.order_date
+        ).toLocaleDateString()
+      : new Date(
+          order.created_at
+        ).toLocaleDateString();
 
     const itemsHtml = order.order_items
       .map(
@@ -131,7 +316,6 @@ export default function AdminPage() {
                   : ""
               }
             </div>
-
             <div class="price">
               AED ${(Number(item.price) * item.quantity).toFixed(2)}
             </div>
@@ -145,7 +329,6 @@ export default function AdminPage() {
       <html>
         <head>
           <title>Cookie Corner Order</title>
-
           <style>
             * {
               box-sizing: border-box;
@@ -283,8 +466,13 @@ export default function AdminPage() {
           <div class="receipt">
 
             <div class="header">
-              <div class="logo">COOKIE CORNER</div>
-              <div class="subtitle">Order</div>
+              <div class="logo">
+                COOKIE CORNER
+              </div>
+
+              <div class="subtitle">
+                Order
+              </div>
             </div>
 
             <div class="customer">
@@ -302,51 +490,78 @@ export default function AdminPage() {
                 <br />
 
                 <strong>Method:</strong>
-                ${escapeHtml(order.order_method || "—")}
+                ${escapeHtml(
+                  order.order_method || "—"
+                )}
               </div>
             </div>
 
             <div class="section">
-              <div class="section-title">Order</div>
+              <div class="section-title">
+                Order
+              </div>
 
               ${itemsHtml}
             </div>
 
             <div class="section">
-              <div class="section-title">Details</div>
+              <div class="section-title">
+                Details
+              </div>
 
               <div class="info">
                 <strong>Payment:</strong>
-                ${escapeHtml(order.payment_method || "—")}
+                ${escapeHtml(
+                  order.payment_method || "—"
+                )}
                 <br />
 
                 ${
-                  order.order_method === "Delivery"
+                  order.order_method ===
+                  "Delivery"
                     ? `
                       <strong>Area:</strong>
-                      ${escapeHtml(order.area || "—")}
+                      ${escapeHtml(
+                        order.area || "—"
+                      )}
                       <br />
 
                       <strong>Location:</strong>
-                      ${escapeHtml(order.delivery_location || "—")}
+                      ${escapeHtml(
+                        order.delivery_location ||
+                          "—"
+                      )}
                       <br />
                     `
                     : ""
                 }
 
                 <strong>Gift:</strong>
-                ${order.gift ? "Yes (+ AED 5)" : "No"}
+                ${
+                  order.gift
+                    ? "Yes (+ AED 5)"
+                    : "No"
+                }
                 <br />
 
                 <strong>Notes:</strong>
-                <span class="notes">${escapeHtml(order.notes || "None")}</span>
+                <span class="notes">
+                  ${escapeHtml(
+                    order.notes || "None"
+                  )}
+                </span>
               </div>
             </div>
 
             <div class="totals">
+
               <div class="total-row">
                 <span>Subtotal</span>
-                <span>AED ${Number(order.subtotal).toFixed(2)}</span>
+                <span>
+                  AED ${Number(
+                    order.subtotal
+                  ).toFixed(2)}
+                </span>
               </div>
 
               ${
@@ -354,7 +569,11 @@ export default function AdminPage() {
                   ? `
                     <div class="total-row">
                       <span>Gift fee</span>
-                      <span>AED ${Number(order.gift_fee).toFixed(2)}</span>
+                      <span>
+                        AED ${Number(
+                          order.gift_fee
+                        ).toFixed(2)}
+                      </span>
                     </div>
                   `
                   : ""
@@ -365,7 +584,11 @@ export default function AdminPage() {
                   ? `
                     <div class="total-row">
                       <span>Delivery fee</span>
-                      <span>AED ${Number(order.delivery_fee).toFixed(2)}</span>
+                      <span>
+                        AED ${Number(
+                          order.delivery_fee
+                        ).toFixed(2)}
+                      </span>
                     </div>
                   `
                   : ""
@@ -373,8 +596,13 @@ export default function AdminPage() {
 
               <div class="total-row total">
                 <span>Total</span>
-                <span>AED ${Number(order.total).toFixed(2)}</span>
+                <span>
+                  AED ${Number(
+                    order.total
+                  ).toFixed(2)}
+                </span>
               </div>
+
             </div>
 
             <div class="footer">
@@ -404,7 +632,6 @@ export default function AdminPage() {
       <div className="mx-auto max-w-6xl">
 
         {/* HEADER */}
-
         <div className="mb-10">
           <p className="text-sm uppercase tracking-[0.2em] text-[#9d7770]">
             Cookie Corner
@@ -417,11 +644,69 @@ export default function AdminPage() {
           <p className="mt-2 text-[#765b55]">
             Your customers and their order history.
           </p>
+
+          <button
+            type="button"
+            onClick={enableAdminNotifications}
+            className="mt-5 rounded-xl border border-[#332321] px-4 py-2 text-sm font-medium text-[#332321] transition hover:bg-[#fff8f7]"
+          >
+            🔔 Enable Admin Notifications
+          </button>
+        </div>
+
+        {/* CREATE NOTIFICATION */}
+        <div className="mb-8 rounded-2xl border border-[#ead7d3] bg-[#fffafa] p-5">
+          <h2 className="text-lg font-bold text-[#332321]">
+            🔔 Create Notification
+          </h2>
+
+          <p className="mt-1 text-sm text-[#7a6662]">
+            Send a custom notification to customers who have notifications enabled.
+          </p>
+
+          <div className="mt-4 space-y-3">
+
+            <input
+              type="text"
+              value={notificationTitle}
+              onChange={(e) =>
+                setNotificationTitle(
+                  e.target.value
+                )
+              }
+              placeholder="Notification title"
+              className="w-full rounded-xl border border-[#d9c4bf] bg-white px-4 py-3 text-sm text-[#332321] outline-none transition focus:border-[#332321]"
+            />
+
+            <textarea
+              value={notificationMessage}
+              onChange={(e) =>
+                setNotificationMessage(
+                  e.target.value
+                )
+              }
+              placeholder="Notification message"
+              rows={4}
+              className="w-full resize-none rounded-xl border border-[#d9c4bf] bg-white px-4 py-3 text-sm text-[#332321] outline-none transition focus:border-[#332321]"
+            />
+
+            <button
+              type="button"
+              onClick={sendCustomNotification}
+              disabled={sendingNotification}
+              className="rounded-xl bg-[#332321] px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {sendingNotification
+                ? "Sending..."
+                : "🔔 Send Notification"}
+            </button>
+
+          </div>
         </div>
 
         {/* STATS */}
-
         <div className="mb-8 grid gap-4 sm:grid-cols-2">
+
           <div className="rounded-2xl border border-[#efd7dc] bg-white p-6">
             <p className="text-sm text-[#9d7770]">
               Total customers
@@ -441,6 +726,7 @@ export default function AdminPage() {
               {orders.length}
             </p>
           </div>
+
         </div>
 
         {loading && (
@@ -457,18 +743,24 @@ export default function AdminPage() {
 
         {!loading && !error && (
           <>
-            {/* CUSTOMERS */}
 
+            {/* CUSTOMERS */}
             <div className="mb-10">
+
               <h2 className="mb-4 text-2xl font-semibold">
                 Customers
               </h2>
 
               <div className="overflow-hidden rounded-2xl border border-[#efd7dc] bg-white">
+
                 <div className="overflow-x-auto">
+
                   <table className="w-full min-w-[800px] text-left">
+
                     <thead className="border-b border-[#efd7dc] bg-[#fff5f6]">
+
                       <tr>
+
                         <th className="px-6 py-4 text-sm font-medium">
                           Customer
                         </th>
@@ -488,40 +780,48 @@ export default function AdminPage() {
                         <th className="px-6 py-4 text-sm font-medium">
                           Last order
                         </th>
+
                       </tr>
+
                     </thead>
 
                     <tbody>
-                      {customers.map((customer) => (
-                        <tr
-                          key={customer.id}
-                          className="border-b border-[#f3e5e7] last:border-b-0"
-                        >
-                          <td className="px-6 py-5 font-medium">
-                            {customer.name}
-                          </td>
 
-                          <td className="px-6 py-5">
-                            {customer.phone}
-                          </td>
+                      {customers.map(
+                        (customer) => (
+                          <tr
+                            key={customer.id}
+                            className="border-b border-[#f3e5e7] last:border-b-0"
+                          >
 
-                          <td className="px-6 py-5">
-                            {customer.location || "—"}
-                          </td>
+                            <td className="px-6 py-5 font-medium">
+                              {customer.name}
+                            </td>
 
-                          <td className="px-6 py-5">
-                            {customer.order_count}
-                          </td>
+                            <td className="px-6 py-5">
+                              {customer.phone}
+                            </td>
 
-                          <td className="px-6 py-5">
-                            {customer.last_order_at
-                              ? new Date(
-                                  customer.last_order_at
-                                ).toLocaleDateString()
-                              : "—"}
-                          </td>
-                        </tr>
-                      ))}
+                            <td className="px-6 py-5">
+                              {customer.location ||
+                                "—"}
+                            </td>
+
+                            <td className="px-6 py-5">
+                              {customer.order_count}
+                            </td>
+
+                            <td className="px-6 py-5">
+                              {customer.last_order_at
+                                ? new Date(
+                                    customer.last_order_at
+                                  ).toLocaleDateString()
+                                : "—"}
+                            </td>
+
+                          </tr>
+                        )
+                      )}
 
                       {customers.length === 0 && (
                         <tr>
@@ -533,15 +833,20 @@ export default function AdminPage() {
                           </td>
                         </tr>
                       )}
+
                     </tbody>
+
                   </table>
+
                 </div>
+
               </div>
+
             </div>
 
             {/* ORDERS */}
-
             <div>
+
               <h2 className="mb-4 text-2xl font-semibold">
                 Orders
               </h2>
@@ -551,11 +856,16 @@ export default function AdminPage() {
                   No orders yet.
                 </div>
               ) : (
+
                 <div className="space-y-3">
+
                   {orders.map((order) => {
-                    const isOpen = openOrder === order.id;
+
+                    const isOpen =
+                      openOrder === order.id;
 
                     return (
+
                       <div
                         key={order.id}
                         className="overflow-hidden rounded-2xl border border-[#efd7dc] bg-white"
@@ -566,11 +876,17 @@ export default function AdminPage() {
                         <button
                           type="button"
                           onClick={() =>
-                            setOpenOrder(isOpen ? null : order.id)
+                            setOpenOrder(
+                              isOpen
+                                ? null
+                                : order.id
+                            )
                           }
                           className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left transition hover:bg-[#fff8f7]"
                         >
+
                           <div className="min-w-0">
+
                             <p className="font-semibold">
                               {order.customer_name}
                             </p>
@@ -578,15 +894,19 @@ export default function AdminPage() {
                             <p className="mt-1 text-sm text-[#765b55]">
                               {order.customer_phone}
                             </p>
+
                           </div>
 
                           <div className="flex items-center gap-5">
+
                             <div className="hidden text-right sm:block">
+
                               <p className="text-xs text-[#9d7770]">
                                 Date
                               </p>
 
                               <p className="text-sm font-medium">
+
                                 {order.order_date
                                   ? new Date(
                                       order.order_date
@@ -594,27 +914,38 @@ export default function AdminPage() {
                                   : new Date(
                                       order.created_at
                                     ).toLocaleDateString()}
+
                               </p>
+
                             </div>
 
                             <div className="text-right">
+
                               <p className="text-xs text-[#9d7770]">
                                 Total
                               </p>
 
                               <p className="font-semibold">
-                                AED {Number(order.total).toFixed(2)}
+                                AED{" "}
+                                {Number(
+                                  order.total
+                                ).toFixed(2)}
                               </p>
+
                             </div>
 
                             <span
                               className={`text-lg transition-transform ${
-                                isOpen ? "rotate-180" : ""
+                                isOpen
+                                  ? "rotate-180"
+                                  : ""
                               }`}
                             >
                               ↓
                             </span>
+
                           </div>
+
                         </button>
 
                         {/* ORDER DETAILS */}
@@ -625,51 +956,69 @@ export default function AdminPage() {
                             {/* PRINT BUTTON */}
 
                             <div className="mb-6 flex justify-end">
+
                               <button
                                 type="button"
-                                onClick={() => printOrder(order)}
+                                onClick={() =>
+                                  printOrder(order)
+                                }
                                 className="rounded-xl border border-[#332321] bg-[#332321] px-4 py-2 text-sm font-medium text-white transition hover:opacity-90"
                               >
                                 🖨️ Print Order
                               </button>
+
                             </div>
 
                             {/* ITEMS */}
 
                             <div className="mb-6">
+
                               <p className="mb-3 text-sm font-medium text-[#9d7770]">
                                 Order
                               </p>
 
                               <div className="space-y-3">
-                                {order.order_items.map((item) => (
-                                  <div
-                                    key={item.id}
-                                    className="flex items-start justify-between gap-4"
-                                  >
-                                    <div>
-                                      <p className="font-medium">
-                                        {item.item_name} ×{" "}
-                                        {item.quantity}
+
+                                {order.order_items.map(
+                                  (item) => (
+
+                                    <div
+                                      key={item.id}
+                                      className="flex items-start justify-between gap-4"
+                                    >
+
+                                      <div>
+
+                                        <p className="font-medium">
+                                          {item.item_name} ×{" "}
+                                          {item.quantity}
+                                        </p>
+
+                                        {item.details && (
+                                          <p className="mt-1 text-sm text-[#765b55]">
+                                            {item.details}
+                                          </p>
+                                        )}
+
+                                      </div>
+
+                                      <p className="whitespace-nowrap">
+                                        AED{" "}
+                                        {(
+                                          Number(
+                                            item.price
+                                          ) *
+                                          item.quantity
+                                        ).toFixed(2)}
                                       </p>
 
-                                      {item.details && (
-                                        <p className="mt-1 text-sm text-[#765b55]">
-                                          {item.details}
-                                        </p>
-                                      )}
                                     </div>
 
-                                    <p className="whitespace-nowrap">
-                                      AED{" "}
-                                      {(
-                                        Number(item.price) *
-                                        item.quantity
-                                      ).toFixed(2)}
-                                    </p>
-                                  </div>
-                                ))}
+                                  )
+                                )}
+
                               </div>
+
                             </div>
 
                             {/* DETAILS */}
@@ -677,50 +1026,66 @@ export default function AdminPage() {
                             <div className="grid gap-5 border-t border-[#f3e5e7] pt-5 sm:grid-cols-2">
 
                               <div>
+
                                 <p className="text-sm text-[#9d7770]">
                                   Method
                                 </p>
 
                                 <p className="mt-1 font-medium">
-                                  {order.order_method || "—"}
+                                  {order.order_method ||
+                                    "—"}
                                 </p>
+
                               </div>
 
                               <div>
+
                                 <p className="text-sm text-[#9d7770]">
                                   Payment
                                 </p>
 
                                 <p className="mt-1 font-medium">
-                                  {order.payment_method || "—"}
+                                  {order.payment_method ||
+                                    "—"}
                                 </p>
+
                               </div>
 
-                              {order.order_method === "Delivery" && (
+                              {order.order_method ===
+                                "Delivery" && (
                                 <>
+
                                   <div>
+
                                     <p className="text-sm text-[#9d7770]">
                                       Area
                                     </p>
 
                                     <p className="mt-1 font-medium">
-                                      {order.area || "—"}
+                                      {order.area ||
+                                        "—"}
                                     </p>
+
                                   </div>
 
                                   <div>
+
                                     <p className="text-sm text-[#9d7770]">
                                       Location
                                     </p>
 
                                     <p className="mt-1 font-medium">
-                                      {order.delivery_location || "—"}
+                                      {order.delivery_location ||
+                                        "—"}
                                     </p>
+
                                   </div>
+
                                 </>
                               )}
 
                               <div>
+
                                 <p className="text-sm text-[#9d7770]">
                                   Gift
                                 </p>
@@ -730,41 +1095,58 @@ export default function AdminPage() {
                                     ? "Yes (+ AED 5)"
                                     : "No"}
                                 </p>
+
                               </div>
 
                               <div>
+
                                 <p className="text-sm text-[#9d7770]">
                                   Notes
                                 </p>
 
                                 <p className="mt-1 font-medium">
-                                  {order.notes || "None"}
+                                  {order.notes ||
+                                    "None"}
                                 </p>
+
                               </div>
+
                             </div>
 
                             {/* TOTAL */}
 
                             <div className="mt-6 flex items-center justify-between border-t border-[#f3e5e7] pt-5">
+
                               <p className="font-medium">
                                 Total
                               </p>
 
                               <p className="text-xl font-semibold">
                                 AED{" "}
-                                {Number(order.total).toFixed(2)}
+                                {Number(
+                                  order.total
+                                ).toFixed(2)}
                               </p>
+
                             </div>
+
                           </div>
                         )}
+
                       </div>
+
                     );
                   })}
+
                 </div>
+
               )}
+
             </div>
+
           </>
         )}
+
       </div>
     </main>
   );
