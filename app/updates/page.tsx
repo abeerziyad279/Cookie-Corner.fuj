@@ -16,7 +16,7 @@ const updates: WebsiteUpdate[] = [
     id: "national-coffee-day-2026",
     title: "National Coffee Day",
     description: "1 cookie + 1 iced latte for only 15 AED ♡",
-    image: "/images/updates/national-coffee-day.png",
+    image: "public/images/updates/national-coffee-day.png",
     startDate: "2026-09-01",
     endDate: "2026-10-01",
   },
