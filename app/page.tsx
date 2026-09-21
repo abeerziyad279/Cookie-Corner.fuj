@@ -44,8 +44,8 @@ const updates: WebsiteUpdate[] = [
     title: "National Coffee Day",
     description: "1 cookie + 1 iced latte for only 15 AED ♡",
     image: "/images/updates/national-coffee-day.png",
-    startDate: "2026-10-01",
-    endDate: "2026-10-01",
+    startDate: "2026-09-01",
+    endDate: "2026-10-02",
     href: "#menu",
   },
 ];
@@ -994,11 +994,11 @@ Notes: ${orderDetails.notes || "None"}`;
 
                 <div className="flex flex-col justify-center px-6 py-8 md:px-10 md:py-10">
                   <p className="font-serif text-lg italic text-[#d9567c]">
-                    a little something for October 1st ♡
+                    a little something from our coffee corner
                   </p>
 
                   <h2 className="mt-2 font-serif text-4xl font-black tracking-[-0.05em] text-[#563b35] md:text-5xl">
-                    coffee + cookies.
+                    coffee + cookie.
                   </h2>
 
                   <p className="mt-3 max-w-md text-sm leading-6 text-[#765852]">
