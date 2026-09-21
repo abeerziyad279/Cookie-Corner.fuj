@@ -276,11 +276,21 @@ useEffect(() => {
   setActiveUpdate(currentUpdate);
 }, []);
 
-  const [offerCookie, setOfferCookie] = useState(cookies[0]?.name ?? "Classic Cookie");
-  const [offerCoffee, setOfferCoffee] = useState("Regular sugar");
+  const offerCookieOptions = cookies.filter(
+    (cookie) =>
+      !["M&M's Cookie", "Kinder Cookie", "Cinnamon Roll Cookie"].includes(
+        cookie.name
+      )
+  );
+
+  const [offerCookie, setOfferCookie] = useState(
+    offerCookieOptions[0]?.name ?? "Classic Cookie"
+  );
+  const [offerCoffeeType, setOfferCoffeeType] = useState("Iced latte");
+  const [offerCoffeeOption, setOfferCoffeeOption] = useState("Regular sugar");
 
   const addCoffeeCookieOffer = () => {
-    const id = `coffee-cookie-offer-${offerCookie}-${offerCoffee}`;
+    const id = `coffee-cookie-offer-${offerCookie}-${offerCoffeeType}-${offerCoffeeOption}`;
 
     setCart((current) => {
       const existing = current.find((item) => item.id === id);
@@ -297,11 +307,11 @@ useEffect(() => {
         ...current,
         {
           id,
-          name: "National Coffee Day · Cookie + Iced Latte",
+          name: "October 1 · Cookie + Coffee Latte",
           price: 15,
           quantity: 1,
           itemCount: 1,
-          details: `${offerCookie} · Iced latte · ${offerCoffee}`,
+          details: `${offerCookie} · ${offerCoffeeType} · ${offerCoffeeOption} · Dairy milk`,
         },
       ];
     });
@@ -967,19 +977,19 @@ Notes: ${orderDetails.notes || "None"}`;
 
                 <div className="flex flex-col justify-center px-6 py-8 md:px-10 md:py-10">
                   <p className="font-serif text-lg italic text-[#d9567c]">
-                    a little note from Cookie Corner ♡
+                    a little something for October 1st ♡
                   </p>
 
                   <h2 className="mt-2 font-serif text-4xl font-black tracking-[-0.05em] text-[#563b35] md:text-5xl">
-                    {activeUpdate.title}
+                    coffee + cookies.
                   </h2>
 
                   <p className="mt-3 max-w-md text-sm leading-6 text-[#765852]">
-                    {activeUpdate.description}
+                    Your coffee deserves a cookie. Pick your cookie, choose your latte, and get both for AED 15.
                   </p>
 
                   <p className="mt-5 text-xs font-bold uppercase tracking-[0.16em] text-[#bd7186]">
-                    October 1 only · pickup
+                    October 1st · pickup only
                   </p>
 
                   <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -989,7 +999,7 @@ Notes: ${orderDetails.notes || "None"}`;
                       aria-label="Choose your cookie"
                       className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
                     >
-                      {cookies.map((cookie) => (
+                      {offerCookieOptions.map((cookie) => (
                         <option key={cookie.name} value={cookie.name}>
                           {cookie.name}
                         </option>
@@ -997,10 +1007,20 @@ Notes: ${orderDetails.notes || "None"}`;
                     </select>
 
                     <select
-                      value={offerCoffee}
-                      onChange={(e) => setOfferCoffee(e.target.value)}
-                      aria-label="Choose your iced latte"
+                      value={offerCoffeeType}
+                      onChange={(e) => setOfferCoffeeType(e.target.value)}
+                      aria-label="Choose hot or iced latte"
                       className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
+                    >
+                      <option value="Iced latte">Iced latte</option>
+                      <option value="Hot latte">Hot latte</option>
+                    </select>
+
+                    <select
+                      value={offerCoffeeOption}
+                      onChange={(e) => setOfferCoffeeOption(e.target.value)}
+                      aria-label="Choose coffee preference"
+                      className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186] sm:col-span-2"
                     >
                       <option value="Regular sugar">Regular sugar</option>
                       <option value="Less sugar">Less sugar</option>
@@ -1010,12 +1030,16 @@ Notes: ${orderDetails.notes || "None"}`;
                     </select>
                   </div>
 
+                  <p className="mt-3 text-xs text-[#765852]">
+                    Dairy milk only.
+                  </p>
+
                   <button
                     type="button"
                     onClick={addCoffeeCookieOffer}
                     className="mt-3 w-full rounded-full bg-[#bd7186] px-6 py-3 text-sm font-bold uppercase tracking-[0.1em] text-white transition hover:bg-[#a96075]"
                   >
-                    Add coffee + cookie · AED 15
+                    Add to bag · AED 15
                   </button>
                 </div>
               </div>
