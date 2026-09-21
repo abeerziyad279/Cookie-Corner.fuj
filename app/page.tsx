@@ -28,7 +28,32 @@ type OrderDetails = {
   gift: boolean;
   payment: string;
 };
+type WebsiteUpdate = {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  startDate: string;
+  endDate: string;
+  href?: string;
+};
 
+const updates: WebsiteUpdate[] = [
+  {
+    id: "national-coffee-day-2026",
+    title: "National Coffee Day",
+    description: "1 cookie + 1 iced latte for only 15 AED ♡",
+    image: "/images/updates/national-coffee-day.png",
+    startDate: "2026-10-01",
+    endDate: "2026-10-01",
+    href: "#menu",
+  },
+];
+
+const getDubaiDate = () =>
+  new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Dubai",
+  }).format(new Date());
 const cookies: Cookie[] = [
   {
     name: "Classic Cookie",
@@ -235,7 +260,21 @@ export default function Home() {
   const [orderDates, setOrderDates] = useState<
     { value: string; label: string }[]
   >([]);
+const [activeUpdate, setActiveUpdate] =
+  useState<WebsiteUpdate | null>(null);
 
+useEffect(() => {
+  const today = getDubaiDate();
+
+  const currentUpdate =
+    updates.find(
+      (update) =>
+        today >= update.startDate &&
+        today <= update.endDate
+    ) ?? null;
+
+  setActiveUpdate(currentUpdate);
+}, []);
   const [orderDetails, setOrderDetails] = useState<OrderDetails>({
     name: "",
     phone: "",
@@ -874,6 +913,43 @@ Notes: ${orderDetails.notes || "None"}`;
           </div>
         </div>
       </section>
+      {/* ACTIVE UPDATE */}
+      {activeUpdate && (
+        <section className="border-b border-[#efd7dc] bg-[#fffaf7] px-5 py-10 md:px-12 md:py-14">
+          <div className="mx-auto max-w-5xl">
+            <a
+              href="/updates"
+              className="group block overflow-hidden rounded-[2rem] border-2 border-[#f0c5d0] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+            >
+              <img
+                src={activeUpdate.image}
+                alt={activeUpdate.title}
+                className="h-auto w-full object-cover"
+              />
+
+              <div className="flex items-center justify-between gap-4 px-5 py-5 md:px-7">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#d9567c]">
+                    what's new
+                  </p>
+
+                  <h2 className="mt-1 font-serif text-2xl font-black tracking-[-0.04em]">
+                    {activeUpdate.title}
+                  </h2>
+
+                  <p className="mt-1 text-sm text-[#765852]">
+                    {activeUpdate.description}
+                  </p>
+                </div>
+
+                <span className="shrink-0 rounded-full bg-[#f5d1da] px-4 py-2 text-xs font-bold uppercase tracking-[0.1em] text-[#8f5265]">
+                  View update →
+                </span>
+              </div>
+            </a>
+          </div>
+        </section>
+      )}
 
       {/* MENU */}
       <section
