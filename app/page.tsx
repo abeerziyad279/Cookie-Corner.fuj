@@ -43,7 +43,7 @@ const updates: WebsiteUpdate[] = [
     id: "national-coffee-day-2026",
     title: "National Coffee Day",
     description: "1 cookie + 1 iced latte for only 15 AED ♡",
-    image: "public/images/updates/national-coffee-day.png",
+    image: "/images/updates/national-coffee-day.png",
     startDate: "2026-09-01",
     endDate: "2026-10-01",
     href: "#menu",
@@ -275,6 +275,41 @@ useEffect(() => {
 
   setActiveUpdate(currentUpdate);
 }, []);
+
+  const [offerCookie, setOfferCookie] = useState(cookies[0]?.name ?? "Classic Cookie");
+  const [offerCoffee, setOfferCoffee] = useState("Regular sugar");
+
+  const addCoffeeCookieOffer = () => {
+    const id = `coffee-cookie-offer-${offerCookie}-${offerCoffee}`;
+
+    setCart((current) => {
+      const existing = current.find((item) => item.id === id);
+
+      if (existing) {
+        return current.map((item) =>
+          item.id === id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
+      }
+
+      return [
+        ...current,
+        {
+          id,
+          name: "National Coffee Day · Cookie + Iced Latte",
+          price: 15,
+          quantity: 1,
+          itemCount: 1,
+          details: `${offerCookie} · Iced latte · ${offerCoffee}`,
+        },
+      ];
+    });
+
+    showToast("Coffee + cookie added to your bag ♡");
+    setShowCart(true);
+  };
+
   const [orderDetails, setOrderDetails] = useState<OrderDetails>({
     name: "",
     phone: "",
@@ -685,7 +720,8 @@ const placeOrder = async () => {
       !orderDetails.date ||
       (orderDetails.method === "Delivery" &&
         !orderDetails.location.trim()) ||
-      totalCookies < 4
+      totalCookies < 4 &&
+      !cart.some((item) => item.id.startsWith("coffee-cookie-offer-"))
     ) {
       return;
     }
@@ -913,40 +949,77 @@ Notes: ${orderDetails.notes || "None"}`;
           </div>
         </div>
       </section>
-      {/* ACTIVE UPDATE */}
+      {/* ACTIVE UPDATE / COOKIE CORNER NOTE */}
       {activeUpdate && (
-        <section className="border-b border-[#efd7dc] bg-[#fffaf7] px-5 py-10 md:px-12 md:py-14">
+        <section className="px-5 pb-8 pt-2 md:px-12 md:pb-12">
           <div className="mx-auto max-w-5xl">
-            <a
-              href="/updates"
-              className="group block overflow-hidden rounded-[2rem] border-2 border-[#f0c5d0] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
-            >
-              <img
-                src={activeUpdate.image}
-                alt={activeUpdate.title}
-                className="h-auto w-full object-cover"
-              />
+            <div className="relative overflow-hidden border-2 border-[#d9b7b7] bg-[#fff8f5] shadow-[4px_5px_0_0_#efd7dc] rotate-[-0.5deg]">
+              <div className="absolute left-1/2 top-0 z-10 h-7 w-24 -translate-x-1/2 -translate-y-1/2 rotate-[-2deg] bg-[#f3c7d1] shadow-sm" />
 
-              <div className="flex items-center justify-between gap-4 px-5 py-5 md:px-7">
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#d9567c]">
-                    what's new
+              <div className="grid md:grid-cols-[0.95fr_1.05fr]">
+                <div className="relative min-h-[250px] bg-[#f8e1e4] p-3 md:min-h-[330px]">
+                  <img
+                    src={activeUpdate.image}
+                    alt={activeUpdate.title}
+                    className="h-full min-h-[250px] w-full object-cover md:min-h-[330px]"
+                  />
+                </div>
+
+                <div className="flex flex-col justify-center px-6 py-8 md:px-10 md:py-10">
+                  <p className="font-serif text-lg italic text-[#d9567c]">
+                    a little note from Cookie Corner ♡
                   </p>
 
-                  <h2 className="mt-1 font-serif text-2xl font-black tracking-[-0.04em]">
+                  <h2 className="mt-2 font-serif text-4xl font-black tracking-[-0.05em] text-[#563b35] md:text-5xl">
                     {activeUpdate.title}
                   </h2>
 
-                  <p className="mt-1 text-sm text-[#765852]">
+                  <p className="mt-3 max-w-md text-sm leading-6 text-[#765852]">
                     {activeUpdate.description}
                   </p>
-                </div>
 
-                <span className="shrink-0 rounded-full bg-[#f5d1da] px-4 py-2 text-xs font-bold uppercase tracking-[0.1em] text-[#8f5265]">
-                  View update →
-                </span>
+                  <p className="mt-5 text-xs font-bold uppercase tracking-[0.16em] text-[#bd7186]">
+                    October 1 only · pickup
+                  </p>
+
+                  <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                    <select
+                      value={offerCookie}
+                      onChange={(e) => setOfferCookie(e.target.value)}
+                      aria-label="Choose your cookie"
+                      className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
+                    >
+                      {cookies.map((cookie) => (
+                        <option key={cookie.name} value={cookie.name}>
+                          {cookie.name}
+                        </option>
+                      ))}
+                    </select>
+
+                    <select
+                      value={offerCoffee}
+                      onChange={(e) => setOfferCoffee(e.target.value)}
+                      aria-label="Choose your iced latte"
+                      className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
+                    >
+                      <option value="Regular sugar">Regular sugar</option>
+                      <option value="Less sugar">Less sugar</option>
+                      <option value="No sugar">No sugar</option>
+                      <option value="Caramel">Caramel</option>
+                      <option value="Vanilla">Vanilla</option>
+                    </select>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={addCoffeeCookieOffer}
+                    className="mt-3 w-full rounded-full bg-[#bd7186] px-6 py-3 text-sm font-bold uppercase tracking-[0.1em] text-white transition hover:bg-[#a96075]"
+                  >
+                    Add coffee + cookie · AED 15
+                  </button>
+                </div>
               </div>
-            </a>
+            </div>
           </div>
         </section>
       )}
@@ -1909,8 +1982,12 @@ function CartDrawer({
   };
 const [showOrderDetails, setShowOrderDetails] = useState(false);
 
+  const hasCoffeeCookieOffer = cart.some((item) =>
+    item.id.startsWith("coffee-cookie-offer-")
+  );
+
   const readyToOrder =
-    totalCookies >= 4 &&
+    (totalCookies >= 4 || hasCoffeeCookieOffer) &&
     orderDetails.name.trim() !== "" &&
     orderDetails.phone.trim() !== "" &&
     orderDetails.date !== "" &&
@@ -2038,7 +2115,7 @@ const [showOrderDetails, setShowOrderDetails] = useState(false);
               </div>
 
               {/* MINIMUM ORDER */}
-              {totalCookies < 4 && (
+              {totalCookies < 4 && !hasCoffeeCookieOffer && (
                 <div className="mt-5 rounded-2xl bg-[#fff0f3] p-4 text-sm font-bold text-[#a45d72]">
                   Minimum order is 4 cookies. Add{" "}
                   {4 - totalCookies} more to continue.
