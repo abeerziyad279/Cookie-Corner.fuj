@@ -43,8 +43,8 @@ const updates: WebsiteUpdate[] = [
     id: "national-coffee-day-2026",
     title: "National Coffee Day",
     description: "1 cookie + 1 iced latte for only 15 AED ♡",
-    image: "images/updates/national-coffee-day.png",
-    startDate: "2026-09-01",
+    image: "/images/updates/national-coffee-day.png",
+    startDate: "2026-10-01",
     endDate: "2026-10-01",
     href: "#menu",
   },
@@ -670,8 +670,23 @@ const enableNotifications = async () => {
     0
   );
 
+  const hasCoffeeCookieOffer = cart.some((item) =>
+    item.id.startsWith("coffee-cookie-offer-")
+  );
+
+  useEffect(() => {
+    if (hasCoffeeCookieOffer && orderDetails.method !== "Pickup") {
+      setOrderDetails((current) => ({
+        ...current,
+        method: "Pickup",
+      }));
+    }
+  }, [hasCoffeeCookieOffer, orderDetails.method]);
+
   const deliveryFee =
-    orderDetails.method === "Delivery"
+    hasCoffeeCookieOffer
+      ? 0
+      : orderDetails.method === "Delivery"
       ? orderDetails.area === "Outside Fujairah"
         ? 25
         : 10
@@ -728,8 +743,10 @@ const placeOrder = async () => {
       !orderDetails.name.trim() ||
       !orderDetails.phone.trim() ||
       !orderDetails.date ||
-      (orderDetails.method === "Delivery" &&
+      (!hasCoffeeCookieOffer &&
+        orderDetails.method === "Delivery" &&
         !orderDetails.location.trim()) ||
+      (hasCoffeeCookieOffer && orderDetails.method !== "Pickup") ||
       totalCookies < 4 &&
       !cart.some((item) => item.id.startsWith("coffee-cookie-offer-"))
     ) {
@@ -977,11 +994,11 @@ Notes: ${orderDetails.notes || "None"}`;
 
                 <div className="flex flex-col justify-center px-6 py-8 md:px-10 md:py-10">
                   <p className="font-serif text-lg italic text-[#d9567c]">
-                    a little something from our coffee corner 
+                    a little something for October 1st ♡
                   </p>
 
                   <h2 className="mt-2 font-serif text-4xl font-black tracking-[-0.05em] text-[#563b35] md:text-5xl">
-                    coffee + cookie.
+                    coffee + cookies.
                   </h2>
 
                   <p className="mt-3 max-w-md text-sm leading-6 text-[#765852]">
@@ -2228,33 +2245,39 @@ const [showOrderDetails, setShowOrderDetails] = useState(false);
                           Order type
                         </label>
 
-                        <select
-                          value={orderDetails.method}
-                          onChange={(e) => {
-                            const method = e.target.value;
+                        {hasCoffeeCookieOffer ? (
+                          <div className="rounded-xl border-2 border-[#dec3c2] bg-[#f7e8e4] px-4 py-3 text-sm font-bold text-[#332321]">
+                            Pickup only · October 1st offer
+                          </div>
+                        ) : (
+                          <select
+                            value={orderDetails.method}
+                            onChange={(e) => {
+                              const method = e.target.value;
 
-                            setOrderDetails({
-                              ...orderDetails,
-                              method,
-                              payment:
-                                method === "Delivery" &&
-                                orderDetails.area === "Outside Fujairah"
-                                  ? "Bank Transfer"
-                                  : orderDetails.payment === "Bank Transfer"
-                                  ? "Cash"
-                                  : orderDetails.payment,
-                            });
-                          }}
-                          className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
-                        >
-                          <option value="Pickup">
-                            Pickup
-                          </option>
+                              setOrderDetails({
+                                ...orderDetails,
+                                method,
+                                payment:
+                                  method === "Delivery" &&
+                                  orderDetails.area === "Outside Fujairah"
+                                    ? "Bank Transfer"
+                                    : orderDetails.payment === "Bank Transfer"
+                                    ? "Cash"
+                                    : orderDetails.payment,
+                              });
+                            }}
+                            className="w-full rounded-xl border-2 border-[#dec3c2] bg-white px-4 py-3 text-sm outline-none focus:border-[#bd7186]"
+                          >
+                            <option value="Pickup">
+                              Pickup
+                            </option>
 
-                          <option value="Delivery">
-                            Delivery
-                          </option>
-                        </select>
+                            <option value="Delivery">
+                              Delivery
+                            </option>
+                          </select>
+                        )}
                       </div>
 
                       {/* DELIVERY DETAILS */}
